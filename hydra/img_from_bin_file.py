@@ -1,3 +1,5 @@
+#!env python
+
 import sys
 from optparse import OptionParser
 import matplotlib.pyplot as plt
@@ -10,28 +12,36 @@ def from_bin_file(fname):
     return arr
 
 def gen_img(arr, perform_fft, fft_size, fname, nfft_to_group = 1):
-
         # cut off samples in the end of the file that do not fit a FFT
         arr = np.resize(arr, arr.size - arr.size % fft_size)
 
+        arr = arr.reshape(arr.size/fft_size, fft_size)
 
         # reshape
-        if nfft_to_group == 1:
-            arr = arr.reshape(arr.size/fft_size/nfft_to_group, fft_size)
-        else:
-            print arr.size
-            print nfft_to_group
-            arr = arr.reshape(nfft_to_group, arr.size/fft_size/nfft_to_group, fft_size)
+        if nfft_to_group > 1:
+            print '\t ... reshaping'
+
+            arr2 = []
+            for i in range(1, arr.size / (fft_size*nfft_to_group)):
+                arr2.append([arr[j] for j in range(i, i + nfft_to_group)])
+            arr = np.array(arr2)
+
+            print '\t ... averaging'
             arr = np.mean(arr, axis=1)
 
-        print "-----------"
-        print arr.size
         if perform_fft:
+            print '\t ... fft'
             arr = np.fft.ifftshift(np.fft.fft(arr))
+
+        print '\t ... complex to mag'
         arr = complex_to_mag(arr)
 
-        plt.imshow(arr, cmap='hot', interpolation='nearest')
+        print '\t ... generating heatmap'
+        plt.imshow(arr, cmap='hot')
+
+        print '\t ... saving'
         plt.savefig(fname)
+        print '\t ... done'
 
 def complex_to_mag(ar):
     return 20 * np.log10(np.absolute(ar))
@@ -40,17 +50,23 @@ def main(options):
 
     arr = from_bin_file(options.in_file)
 
-    fname = lambda idx: options.out_file + str(idx) + "." + options.out_file_ext
+    fname = lambda idx: options.in_file + str(idx) + "." + options.out_file_ext
 
     nfft_to_group = 1
     if options.avg_by_time > 0:
          nfft_to_group = int((options.samp_rate/options.fft_size) * (options.avg_by_time/1000.0))
-    block_size = options.lines_per_file * options.fft_size * nfft_to_group
+         print 'FFTs to group: %d' % (nfft_to_group, )
+
+    inpos = options.in_pos
+    if options.lines_per_file == -1:
+        print "Generating a single image. This can take a while ..."
+        block_size = len(arr)
+    else:
+        block_size = options.lines_per_file * options.fft_size * nfft_to_group
 
     if options.out_pos == -1:
         options.out_pos = len(arr)
 
-    inpos = options.in_pos
     while inpos < options.out_pos:
         gen_img(arr[inpos:inpos+block_size], options.perform_fft, options.fft_size, fname(inpos/block_size), nfft_to_group)
 
@@ -64,14 +80,12 @@ if __name__ == "__main__":
                      help="FFT size used/to use.")
     parser.add_option("", "--perform-fft", action="store_true", default=False,
                      help="Perform FFT.")
-    parser.add_option("", "--lines-per-file", type="int", default=1000,
+    parser.add_option("", "--lines-per-file", type="int", default=-1,
                      help="Block of samples to read from FILE.")
     parser.add_option("", "--in-pos", type="int", default=0,
                      help="Index of first sample to read.")
     parser.add_option("", "--out-pos", type="int", default=-1,
                      help="Index of last sample to read.")
-    parser.add_option("", "--out-file", type="string", default="spectrum",
-                     help="Output file name. Each image is generate from BLOCK-SIZE samples.")
     parser.add_option("", "--out-file-ext", type="string", default="png",
                      help="Ouput image extension.")
     parser.add_option("", "--samp-rate", type="float", default=1e6,
