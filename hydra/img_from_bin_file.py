@@ -5,20 +5,26 @@ from optparse import OptionParser
 import matplotlib.pyplot as plt
 import numpy as np
 
+from PIL import Image
+
 def from_bin_file(fname):
     fd = open(fname, "rb")
     arr= np.fromfile(fd, np.dtype(np.complex64))
 
     return arr
 
-def gen_img(arr, perform_fft, fft_size, fname, nfft_to_group):
+def gen_img(arr, options, fname):
+
+        nfft_to_group = options.nfft_to_group
+        fft_size = options.fft_size
+
         # cut off samples in the end of the file that do not fit a FFT
         arr = np.resize(arr, arr.size - arr.size % fft_size)
 
         print '\t ... reshaping'
         arr = arr.reshape(arr.size/fft_size, fft_size)
 
-        if perform_fft:
+        if options.perform_fft:
             print '\t ... fft'
             arr = np.fft.ifftshift(np.fft.fft(arr))
 
@@ -44,19 +50,22 @@ def gen_img(arr, perform_fft, fft_size, fname, nfft_to_group):
         arr = arr - np.min(arr)
         arr = arr / np.max(arr)
         print '\t\t ... avg: ' + str(np.average(arr))
+        print '\t\t ... std: ' + str(np.std(arr))
 
-        print '\t\t ... binarizing: '
-        low = arr <= (np.average(arr) + 3 * np.std(arr))
-        high = arr > (np.average(arr) + 3 * np.std(arr))
-        arr[low] = 0
-        arr[high] = 1
+        print '\t ... saving colored imag'
+        img = Image.fromarray(np.uint8(plt.get_cmap('Accent')(arr) * 255.0))
+        img.save(fname)
 
-        print '\t ... generating heatmap'
-        plt.imshow(arr, cmap='gist_gray')
+        if options.binarize:
+            print '\t ... binarizing'
+            low = arr <= (np.average(arr) + 3 * np.std(arr))
+            high = arr > (np.average(arr) + 3 * np.std(arr))
+            arr[low] = 100.0
+            arr[high] = 255.0
 
-        print '\t ... saving'
-        plt.savefig(fname)
-        print '\t ... done'
+            print '\t\t ... saving binarized imag'
+            img = Image.fromarray(arr).convert('RGB')
+            img.save(fname.replace(options.in_file, options.in_file +'_binarized'))
 
 def complex_to_mag(ar):
     return np.log10(np.absolute(ar))
@@ -77,8 +86,9 @@ def main(options):
     if options.out_pos == -1:
         options.out_pos = len(arr)
 
+
     while inpos < options.out_pos:
-        gen_img(arr[inpos:inpos+block_size], options.perform_fft, options.fft_size, fname(inpos/block_size), options.nfft_to_group)
+        gen_img(arr[inpos:inpos+block_size], options, fname(inpos/block_size))
 
         inpos += block_size
 
@@ -102,6 +112,8 @@ if __name__ == "__main__":
                       help="Sample rate used to generate file. Used to group FFT bins by TIME.")
     parser.add_option("", "--nfft-to-group", type="int", default=1,
                       help="Group block of FFTs and extract the average.")
+    parser.add_option("", "--binarize", action="store_true", default=False,
+                     help="Save binarized version of image.")
     (options, args) = parser.parse_args ()
 
     main(options)
