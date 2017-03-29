@@ -50,7 +50,7 @@ class spectrum_to_binfile(gr.top_block):
         self.uhd_usrp_source_0.set_bandwidth(self.bandwidth, 0)
 
         self.blocks_head_0 = blocks.head(gr.sizeof_gr_complex*1, int(options.samp_rate * options.time))
-        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex, options.file, False)
+        self.blocks_file_sink_0 = blocks.file_sink(gr.sizeof_gr_complex, options.filename, False)
         self.blocks_file_sink_0.set_unbuffered(False)
 
         ##################################################
@@ -63,15 +63,17 @@ class spectrum_to_binfile(gr.top_block):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option("-f", "--filename", type="string", default="iq.bin",
-                     help="Output file with captured IQ samples")
-    parser.add_option("", "--time", type="intx", default=5,
-                     help="Capture duration in seconds.")
-    parser.add_option("", "--samp-rate", type="intx", default=int(4e6),
-                     help="Sampling Rate")
-    parser.add_option("", "--bandwidth", type="intx", default=int(4e6),
-                     help="Bandwidth")
-    parser.add_option("", "--gain", type="intx", default=1,
-                     help="USRP gain")
+                     help="Output file with captured IQ samples [default=%default]")
+    parser.add_option("-c", "--central-freq", type="intx", default=int(2.45e9),
+                     help="Center Frequency [default=%default]")
+    parser.add_option("-t", "--time", type="intx", default=5,
+                     help="Capture duration in seconds [default=%default].")
+    parser.add_option("-s", "--samp-rate", type="intx", default=int(4e6),
+                     help="Sampling Rate [default=%default]")
+    parser.add_option("-b", "--bandwidth", type="intx", default=int(4e6),
+                     help="Bandwidth [default=%default]")
+    parser.add_option("-g", "--gain", type="intx", default=1,
+                     help="USRP gain [default=%default]")
     return parser
 
 
