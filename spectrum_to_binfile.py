@@ -64,7 +64,7 @@ def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option("-f", "--filename", type="string", default="iq.bin",
                      help="Output file with captured IQ samples [default=%default]")
-    parser.add_option("-c", "--central-freq", type="intx", default=int(2.45e9),
+    parser.add_option("-c", "--central-freq", type="intx", default=int(5.48e9),
                      help="Center Frequency [default=%default]")
     parser.add_option("-t", "--time", type="intx", default=5,
                      help="Capture duration in seconds [default=%default].")
@@ -72,7 +72,7 @@ def argument_parser():
                      help="Sampling Rate [default=%default]")
     parser.add_option("-b", "--bandwidth", type="intx", default=int(4e6),
                      help="Bandwidth [default=%default]")
-    parser.add_option("-g", "--gain", type="intx", default=1,
+    parser.add_option("-g", "--gain", type="intx", default=40,
                      help="USRP gain [default=%default]")
     return parser
 
