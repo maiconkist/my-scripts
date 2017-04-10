@@ -42,7 +42,8 @@ def parse_arr(arr, options):
             print '\t ... fft'
             arr = np.fft.ifftshift(np.fft.fft(arr))
         print '\t ... complex to mag'
-        arr = np.log10(np.absolute(arr))
+        #arr = np.log10(np.absolute(arr))
+        arr = np.absolute(arr)
 
         # reshape
         if nfft_to_group > 1:
@@ -63,7 +64,8 @@ def parse_arr(arr, options):
         # bin mask for ADC ONLY
         bin_mask = gen_bin_mask(None, None, fft_size, ())
         for i in range(len(arr)):
-            arr[i][ bin_mask == BIN_DC ] = mi
+            pass
+            #arr[i][ bin_mask == BIN_DC ] = mi
 
 
         print '\t ... normalizing'
@@ -74,10 +76,9 @@ def parse_arr(arr, options):
         mi = np.min(arr)
         ma = np.max(arr)
 
-        arr = arr - mi
-        arr = arr / (ma - mi)
+        arr_norm = (arr - mi) / (ma - mi)
 
-        return arr
+        return arr, arr_norm
 
 def gen_bin_mask(cf, bw, fft_size, vr_confs):
 
@@ -129,24 +130,28 @@ def gen_power_csv(arr, options):
         fd.write(options.in_file + "," + ",".join([str(x) for x in res]))
         fd.write("\n")
 
-def gen_img(arr, options, imgname):
+def gen_heatmap(arr_norm, options, imgname):
         print '\t ... saving colored imag'
-        img = Image.fromarray(np.uint8(plt.get_cmap('Accent')(arr) * 255.0))
+        img = Image.fromarray(np.uint8(plt.get_cmap('Accent')(arr_norm) * 255.0))
         img.save(imgname)
 
         if options.binarize:
             print '\t ... binarizing'
-            low = arr <= (np.average(arr))
-            high = arr > (np.average(arr))
-            arr[low] = 50.0
-            arr[high] = 255.0
+            low = arr_norm <= (np.average(arr_norm))
+            high = arr_norm > (np.average(arr_norm))
+            arr_norm[low] = 50.0
+            arr_norm[high] = 255.0
 
             print '\t\t ... saving binarized imag'
-            img = Image.fromarray(arr).convert('RGB')
+            img = Image.fromarray(arr_norm).convert('RGB')
             img.save(imgname.replace(options.in_file, options.in_file +'_binarized'))
 
         print "DONE"
 
+def gen_plotline(arr_parsed, options, imgname, eof):
+        plt.plot(np.mean(arr_parsed, axis=0))
+        plt.savefig(imgname.replace(options.in_file, options.in_file +'_line'))
+        plt.close()
 
 def parse_file(options):
     arr = from_bin_file(options.in_file)
@@ -164,13 +169,14 @@ def parse_file(options):
         options.out_pos = len(arr)
 
     while inpos < options.out_pos:
-        arr2 = parse_arr(arr[inpos:inpos+block_size], options)
+        arr_parsed, arr_norm = parse_arr(arr[inpos:inpos+block_size], options)
 
         if options.gen_csv:
-            gen_power_csv(arr2, options)
+            gen_power_csv(arr_parsed, options)
 
         if options.gen_img:
-            gen_img(arr2, options, imgname(inpos/block_size))
+            gen_heatmap(arr_norm, options, imgname(inpos/block_size))
+            gen_plotline(arr_parsed, options, imgname(inpos/block_size), inpos + block_size < options.out_pos)
 
         inpos += block_size
 
@@ -188,7 +194,6 @@ def parse_all_files(options):
             print 'Parsing file: ' + options.in_file
 
             parse_file(options)
-
 
 if __name__ == "__main__":
     parser = OptionParser()
