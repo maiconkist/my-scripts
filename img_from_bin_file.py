@@ -22,6 +22,12 @@ A = ["00", "01", "05", "1"] # amplitudes for VR 1
 BIN_NOISE = -1
 BIN_DC =    -2
 
+
+
+CROP = { 'lte' :(1230, 0, 2610, 200),
+         'nbiot':(2894, 0, 3250, 200),
+}
+
 def from_bin_file(fname):
     fd = open(fname, "rb")
     arr= np.fromfile(fd, np.dtype(np.complex64))
@@ -81,7 +87,6 @@ def parse_arr(arr, options):
         return arr, arr_norm
 
 def gen_bin_mask(cf, bw, fft_size, vr_confs):
-
     bin_mask = np.array([BIN_NOISE] * fft_size)
 
     for idx, vr in enumerate(vr_confs):
@@ -98,13 +103,11 @@ def gen_bin_mask(cf, bw, fft_size, vr_confs):
 
         bin_mask[vr_fi_fft:vr_la_fft] = idx
 
-
     # MAJOR SOURCE OF BUGS IF YOU CHANGE THE FFT SIZE
     mid = fft_size/2
     bin_mask[mid-20:mid+20] = BIN_DC
 
     return bin_mask
-
 
 def gen_power_csv(arr, options):
     cf = 5.48e9
@@ -131,32 +134,38 @@ def gen_power_csv(arr, options):
         fd.write("\n")
 
 def gen_heatmap(arr_norm, options, imgname):
-        print '\t ... saving colored imag'
-        img = Image.fromarray(np.uint8(plt.get_cmap('Accent')(arr_norm) * 255.0))
-        img.save(imgname)
+    print '\t ... saving colored image: ' + imgname
+    img = Image.fromarray(np.uint8(plt.get_cmap('Accent')(arr_norm) * 255.0))
+    img.save(imgname)
 
-        if options.binarize:
-            print '\t ... binarizing'
-            low = arr_norm <= (np.average(arr_norm))
-            high = arr_norm > (np.average(arr_norm))
-            arr_norm[low] = 50.0
-            arr_norm[high] = 255.0
+    if options.binarize:
+        print '\t ... binarizing'
+        low = arr_norm <= (np.average(arr_norm) + 2 * (np.std(arr_norm)))
+        high = arr_norm > (np.average(arr_norm) + 2 * (np.std(arr_norm)))
+        arr_norm[low] = 50.0
+        arr_norm[high] = 255.0
 
-            print '\t\t ... saving binarized imag'
-            img = Image.fromarray(arr_norm).convert('RGB')
-            img.save(imgname.replace(options.in_file, options.in_file +'_binarized'))
+        print '\t\t ... saving binarized imag'
+        bin_img = Image.fromarray(arr_norm).convert('RGB')
+        bin_img.save(imgname.replace(options.out_file_ext, '_binarized.' + options.out_file_ext))
 
-        print "DONE"
+    if options.crop:
+        print '\t ... cropping images'
+        for k, v in CROP.iteritems():
+            print '\t\t ... saving crop ' + k
+            crop_img = bin_img.copy()
+            crop_img.crop(v).save(imgname.replace(options.out_file_ext, k + '.' + options.out_file_ext))
+    print "DONE"
 
 def gen_plotline(arr_parsed, options, imgname, eof):
-        plt.plot(np.mean(arr_parsed, axis=0))
-        plt.savefig(imgname.replace(options.in_file, options.in_file +'_line'))
-        plt.close()
+    plt.plot(np.mean(arr_parsed, axis=0))
+    plt.savefig(imgname.replace(options.in_file, options.in_file +'_line.png'))
+    plt.close()
 
 def parse_file(options):
     arr = from_bin_file(options.in_file)
 
-    imgname = lambda idx: options.in_file + str(idx) + "." + options.out_file_ext
+    imgname = lambda idx: (options.dst_folder if options.dst_folder else "") + "/" + os.path.basename(options.in_file) + str(idx) + "." + options.out_file_ext
 
     inpos = options.in_pos
     if options.lines_per_file == -1:
@@ -228,6 +237,10 @@ if __name__ == "__main__":
                          help="Ouput image extension [default=%default].")
     img_group.add_option("", "--binarize", action="store_true", default=False,
                          help="Save binarized version of image [default=%default].")
+    img_group.add_option("", "--crop", action="store_true", default=False,
+                         help="Save cropped version of image [default=%default]. Edit CROP variable to change crop coordinates.")
+    batch_group.add_option("", "--dst-folder", type="string", default=None,
+                     help="Destiny FOLDER of images [default=Same as binary file].")
 
     csv_group = parser.add_option_group('CSV Generation')
     batch_group.add_option("", "--gen-csv", action="store_true", default=False,
