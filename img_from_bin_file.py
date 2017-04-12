@@ -24,7 +24,8 @@ BIN_DC =    -2
 
 
 
-CROP = { 'lte' :(1230, 0, 2610, 200),
+#CROP = { 'lte' :(1230, 0, 2610, 200),
+CROP = { 'lte' :(910, 0, 2290, 200),
          'nbiot':(2894, 0, 3250, 200),
 }
 
@@ -166,6 +167,7 @@ def parse_file(options):
     arr = from_bin_file(options.in_file)
 
     imgname = lambda idx: (options.dst_folder if options.dst_folder else "") + "/" + os.path.basename(options.in_file) + str(idx) + "." + options.out_file_ext
+    print imgname
 
     inpos = options.in_pos
     if options.lines_per_file == -1:

@@ -10,7 +10,7 @@ SSH_CMD = "ssh nodeuser@192.168.10.120"
 TX_SCRIPT_FOLDER =  "~/gr-hydra/apps/"
 TX_SCRIPT = {
     'hydra-burst': './atomic/tx/hydra_async_tx.py',
-    'hydra-const': './atomic/tx/hydra_tx.py',
+    'hydra-cont': './atomic/tx/hydra_tx.py',
 
     'lte-burst': './no_hydra_tx/tx/single_radio_tx.py',
     'nbiot-burst': './no_hydra_tx/tx/single_radio_tx.py',
@@ -24,7 +24,7 @@ TX_OPT = {
 }
 
 TX_EXTRA_OPTS = {
-    'atomic': "",
+    'hydra': "",
     'lte': "--lte-radio",
     'nbiot': "--nbiot-radio",
 }
@@ -33,12 +33,16 @@ def main():
     remote = pexpect.spawn(SSH_CMD)
     local = pexpect.spawn('zsh')
 
+    #remote.sendline("screen -x XXX")
+    #local.sendline("screen -x XXX")
+
     remote.sendline("cd " + RX_SCRIPT_FOLDER)
     local.sendline("cd " + TX_SCRIPT_FOLDER)
 
+
     #for split in ['hydra', 'lte', 'nbiot']:
-    for split in ['lte', 'nbiot' ]:
-        for mode in ['cont',  ]:
+    for split in ['hydra', 'lte', 'nbiot' ]:
+        for mode in ['cont', ]:
             for A1, A2 in [
                           ("00", "00"), ("00", "0.1"),  ("00", "0.5"), ("00", "1"),
                           ("0.1", "00"), ("0.1", "0.1"),  ("0.1", "0.5"), ("0.1", "1"),
