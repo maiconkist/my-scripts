@@ -42,28 +42,28 @@ def parse_arr(arr, options):
         # cut off samples in the end of the file that do not fit a FFT
         arr = np.resize(arr, arr.size - arr.size % fft_size)
 
-        print '\t ... reshaping'
+        print('\t ... reshaping')
         arr = arr.reshape(arr.size/fft_size, fft_size)
 
         if options.perform_fft:
-            print '\t ... fft'
+            print('\t ... fft')
             arr = np.fft.ifftshift(np.fft.fft(arr))
-        print '\t ... complex to mag'
+        print('\t ... complex to mag')
         #arr = np.log10(np.absolute(arr))
         arr = np.absolute(arr)
 
         # reshape
         if nfft_to_group > 1:
-            print '\t ... grouping'
+            print('\t ... grouping')
             arr2 = []
             for i in range(0, len(arr)/nfft_to_group):
                 gsum = np.array([0.0 for _tmp in range(fft_size)])
-                print str(i) + "/" + str(len(arr))
+                print(str(i) + "/" + str(len(arr)))
                 gsum = arr[0:min(nfft_to_group, len(arr)-1)]
                 arr = np.delete(arr, range(0,min(nfft_to_group, len(arr)-1)), 0)
                 arr2.append(gsum.sum(axis=0)/len(gsum))
 
-                print arr2[-1]
+                print(arr2[-1])
 
             arr = np.array(arr2)
 
@@ -75,11 +75,11 @@ def parse_arr(arr, options):
             #arr[i][ bin_mask == BIN_DC ] = mi
 
 
-        print '\t ... normalizing'
-        print '\t\t ... min: ' + str(np.min(arr))
-        print '\t\t ... max: ' + str(np.max(arr))
-        print '\t\t ... avg: ' + str(np.average(arr))
-        print '\t\t ... std: ' + str(np.std(arr))
+        print('\t ... normalizing')
+        print('\t\t ... min: ' + str(np.min(arr)))
+        print('\t\t ... max: ' + str(np.max(arr)))
+        print('\t\t ... avg: ' + str(np.average(arr)))
+        print('\t\t ... std: ' + str(np.std(arr)))
         mi = np.min(arr)
         ma = np.max(arr)
 
@@ -100,7 +100,7 @@ def gen_bin_mask(cf, bw, fft_size, vr_confs):
         vr_fi_fft = int(vr_mid_fft - (vr_bw/2/bw_per_bin))
         vr_la_fft = int(vr_mid_fft + (vr_bw/2/bw_per_bin))
 
-        print "---- VR: %d,  1st FFT: %d, 9th FFT: %d" % (idx, vr_fi_fft, vr_la_fft)
+        print("---- VR: %d,  1st FFT: %d, 9th FFT: %d" % (idx, vr_fi_fft, vr_la_fft))
 
         bin_mask[vr_fi_fft:vr_la_fft] = idx
 
@@ -128,35 +128,35 @@ def gen_power_csv(arr, options):
 
         snr = np.log10((power/noise) ** 2)
         res.extend([idx, snr, noise, power])
-        print "VR %d -- SNR: %f [noise: %f, power:%f]" % (idx, snr, noise, power)
+        print("VR %d -- SNR: %f [noise: %f, power:%f]" % (idx, snr, noise, power))
 
     with open(options.csv_file, 'a+') as fd:
         fd.write(options.in_file + "," + ",".join([str(x) for x in res]))
         fd.write("\n")
 
 def gen_heatmap(arr_norm, options, imgname):
-    print '\t ... saving colored image: ' + imgname
+    print('\t ... saving colored image: ' + imgname)
     img = Image.fromarray(np.uint8(plt.get_cmap('Accent')(arr_norm) * 255.0))
     img.save(imgname)
 
     if options.binarize:
-        print '\t ... binarizing'
+        print('\t ... binarizing')
         low = arr_norm <= (np.average(arr_norm) + 2 * (np.std(arr_norm)))
         high = arr_norm > (np.average(arr_norm) + 2 * (np.std(arr_norm)))
         arr_norm[low] = 50.0
         arr_norm[high] = 255.0
 
-        print '\t\t ... saving binarized imag'
+        print('\t\t ... saving binarized imag')
         bin_img = Image.fromarray(arr_norm).convert('RGB')
         bin_img.save(imgname.replace(options.out_file_ext, '_binarized.' + options.out_file_ext))
 
     if options.crop:
-        print '\t ... cropping images'
+        print('\t ... cropping images')
         for k, v in CROP.iteritems():
-            print '\t\t ... saving crop ' + k
+            print('\t\t ... saving crop ' + k)
             crop_img = bin_img.copy()
             crop_img.crop(v).save(imgname.replace(options.out_file_ext, k + '.' + options.out_file_ext))
-    print "DONE"
+    print("DONE")
 
 def gen_plotline(arr_parsed, options, imgname, eof):
     plt.plot(np.mean(arr_parsed, axis=0))
@@ -167,11 +167,10 @@ def parse_file(options):
     arr = from_bin_file(options.in_file)
 
     imgname = lambda idx: (options.dst_folder if options.dst_folder else "") + "/" + os.path.basename(options.in_file) + str(idx) + "." + options.out_file_ext
-    print imgname
 
     inpos = options.in_pos
     if options.lines_per_file == -1:
-        print "Generating a single image. This can take a while ..."
+        print("Generating a single image. This can take a while ...")
         block_size = len(arr)
     else:
         block_size = options.lines_per_file * options.fft_size * options.nfft_to_group
@@ -202,7 +201,7 @@ def parse_all_files(options):
 
         for bf in bin_files:
             options.in_file = _r + '/' + bf
-            print 'Parsing file: ' + options.in_file
+            print('Parsing file: ' + options.in_file)
 
             parse_file(options)
 
@@ -253,7 +252,7 @@ if __name__ == "__main__":
     (options, args) = parser.parse_args ()
 
     if not (options.gen_img or options.gen_csv):
-        print "Must specify --gen-img or --gen-csv [or both]"
+        print("Must specify --gen-img or --gen-csv [or both]")
         sys.exit(1)
 
     if options.parse_all:
