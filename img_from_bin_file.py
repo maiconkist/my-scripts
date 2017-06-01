@@ -8,9 +8,11 @@ import os
 
 from PIL import Image
 
+import Gnuplot
 
-hydra_filename_template= 'hydra/{mode}_{A1}A1_{A2}A2_4Msps_20Ms.bin'
-single_filename_template= 'single/{radio}_{A}_4Msps_20Ms.bin'
+
+hydra_filename_template= 'atomic_{mode}_{A1}A1_{A2}A2_4Msps_20Ms.bin'
+single_filename_template= '{radio}_{mode}_{A}_4Msps_20Ms.bin'
 
 mode = ['atomic', 'burst' ]
 A1 = ["00", "01", "05", "1"] # amplitudes for VR 1
@@ -24,14 +26,13 @@ BIN_DC =    -2
 
 
 
-#CROP = { 'lte' :(1230, 0, 2610, 200),
 CROP = { 'lte' :(910, 0, 2290, 200),
          'nbiot':(2894, 0, 3250, 200),
 }
 
 def from_bin_file(fname):
     fd = open(fname, "rb")
-    arr= np.fromfile(fd, np.dtype(np.complex64))
+    arr = np.fromfile(fd, np.dtype(np.complex64))
 
     return arr
 
@@ -68,12 +69,11 @@ def parse_arr(arr, options):
             arr = np.array(arr2)
 
         mi = np.min(arr)
-        # bin mask for ADC ONLY
-        bin_mask = gen_bin_mask(None, None, fft_size, ())
-        for i in range(len(arr)):
-            pass
-            #arr[i][ bin_mask == BIN_DC ] = mi
-
+        ## bin mask for ADC ONLY
+        #bin_mask = gen_bin_mask(None, None, fft_size, ())
+        #for i in range(len(arr)):
+        #    pass
+        #    arr[i][ bin_mask == BIN_DC ] = mi
 
         print('\t ... normalizing')
         print('\t\t ... min: ' + str(np.min(arr)))
@@ -86,6 +86,7 @@ def parse_arr(arr, options):
         arr_norm = (arr - mi) / (ma - mi)
 
         return arr, arr_norm
+
 
 def gen_bin_mask(cf, bw, fft_size, vr_confs):
     bin_mask = np.array([BIN_NOISE] * fft_size)
@@ -110,7 +111,7 @@ def gen_bin_mask(cf, bw, fft_size, vr_confs):
 
     return bin_mask
 
-def gen_power_csv(arr, options):
+def gen_csv(arr, options):
     cf = 5.48e9
     bw = 4e6
     vr_confs = [(cf-500e3, 1e6), (cf+400e3, 200e3)]
@@ -124,10 +125,10 @@ def gen_power_csv(arr, options):
 
         # sum arr values in indexes where bin_mask == vr id
         power = np.sum(arr2[bin_mask == idx]) / sum(bin_mask == idx)
-        noise = np.sum(arr2[bin_mask == BIN_NOISE])  / sum(bin_mask == BIN_NOISE)
+        noise = np.std(arr2[bin_mask == idx])
+        snr = 10 * np.log10((power/noise))
 
-        snr = np.log10((power/noise) ** 2)
-        res.extend([idx, snr, noise, power])
+        res.extend([idx, snr, 10 * np.log10(noise), 10 * np.log10(power)])
         print("VR %d -- SNR: %f [noise: %f, power:%f]" % (idx, snr, noise, power))
 
     with open(options.csv_file, 'a+') as fd:
@@ -155,13 +156,105 @@ def gen_heatmap(arr_norm, options, imgname):
         for k, v in CROP.iteritems():
             print('\t\t ... saving crop ' + k)
             crop_img = bin_img.copy()
-            crop_img.crop(v).save(imgname.replace(options.out_file_ext, k + '.' + options.out_file_ext))
+            crop_img.crop(v).save(imgname.replace(options.out_file_ext, k + '.'
+                                                  + options.out_file_ext))
     print("DONE")
 
-def gen_plotline(arr_parsed, options, imgname, eof):
+
+def gen_plotline(arr_parsed, imgname, eof=True):
+
     plt.plot(np.mean(arr_parsed, axis=0))
-    plt.savefig(imgname.replace(options.in_file, options.in_file +'_line.png'))
-    plt.close()
+    plt.savefig(imgname)
+
+    if eof:
+        plt.close()
+
+
+def gen_plotline2(arrs, imgname):
+
+    g = Gnuplot.Gnuplot(debug=0)
+    g("set style data lines")
+    g("set xrange [0:5120]")
+    g("set yrange [-20:20]")
+
+
+    g.ylabel("Signal Power [dB]")
+    g.xlabel("FFT bin")
+
+
+    for i in arrs:
+        g.plot(*arrs)
+
+    g.hardcopy(filename=imgname, terminal='png')
+
+
+def gen_the_lines(options):
+    THE_LINES = {
+        'hydra_lte_only': (
+            ('hydra', 'cont', '00', '00', "LTE: 0.0 - NB-IoT: 0.0"),
+            ('hydra', 'cont', '01', '00', "LTE: 0.1 - NB-IoT: 0.0"),
+            ('hydra', 'cont', '05', '00', "LTE: 0.5 - NB-IoT: 0.0"),
+            ('hydra', 'cont', '1',  '00', "LTE: 1.0 - NB-IoT: 0.0"),
+        ),
+
+        'single_lte_only': (
+            ('single', 'lte',  'cont',  '00', "LTE 0.0"),
+            ('single', 'lte',  'cont',  '01', "LTE 0.1"),
+            ('single', 'lte',  'cont',  '05', "LTE 0.5"),
+            ('single', 'lte',  'cont',   '1', "LTE 1.0"),
+        ),
+
+        'hydra_nb_iot_only': (
+            ('hydra', 'cont', '00', '00', "LTE: 0.0 - NB-IoT: 0.0"),
+            ('hydra', 'cont', '00', '01', "LTE: 0.0 - NB-IoT: 0.1"),
+            ('hydra', 'cont', '00', '05', "LTE: 0.0 - NB-IoT: 0.5"),
+            ('hydra', 'cont', '00',  '1', "LTE: 0.0 - NB-IoT: 1.0"),
+        ),
+
+        'single_nbiot_only': (
+            ('single', 'nbiot',  'cont',  '00', "NB-IoT 0.0"),
+            ('single', 'nbiot',  'cont',  '01', "NB-IoT 0.1"),
+            ('single', 'nbiot',  'cont',  '05', "NB-IoT 0.5"),
+            ('single', 'nbiot',  'cont',   '1', "NB-IoT 1.0"),
+        ),
+
+        'hydra_lte_only_comparison': (
+            ('hydra',  'cont', '1',    '00', "Hydra - LTE: 1.0 - NB-IoT: 0.0"),
+            ('single', 'lte',  'cont',  '1', "Only LTE")
+        ),
+
+        'hydra_nbiot_only_comparison': (
+            ('hydra',  'cont',  '00',   '1', "Hydra - LTE: 0.0 - NB-IoT: 1.0"),
+            ('single', 'nbiot', 'cont', '1', "Only NB-IoT")
+        ),
+       }
+
+    for k in THE_LINES.keys():
+
+        sketch = THE_LINES[k]
+
+        arrs = []
+        for tup in sketch:
+                file_template = tup[0]
+
+                filename = options.src_folder + "/"
+
+                if file_template == 'hydra':
+                    filename += "hydra/" + hydra_filename_template.format(mode=tup[1], A1=tup[2], A2=tup[3])
+                elif file_template == 'single':
+                    filename += "single/" + single_filename_template.format(radio=tup[1], mode=tup[2], A=tup[3])
+                arr = from_bin_file(filename)
+                arr, _ = parse_arr(arr, options)
+
+
+                # convert to db
+                arr = 10 * np.log10(arr)
+
+                plot = Gnuplot.PlotItems.Data(np.mean(arr, axis=0), title=tup[4])
+
+                arrs.append(plot)
+        gen_plotline2(arrs, k + ".png")
+
 
 def parse_file(options):
     arr = from_bin_file(options.in_file)
@@ -182,7 +275,7 @@ def parse_file(options):
         arr_parsed, arr_norm = parse_arr(arr[inpos:inpos+block_size], options)
 
         if options.gen_csv:
-            gen_power_csv(arr_parsed, options)
+            gen_csv(arr_parsed, options)
 
         if options.gen_img:
             gen_heatmap(arr_norm, options, imgname(inpos/block_size))
@@ -192,8 +285,7 @@ def parse_file(options):
 
 
 def parse_all_files(options):
-
-    for _r, _d, _f in os.walk(options.folder):
+    for _r, _d, _f in os.walk(options.src_folder):
         if '.git' in _r:
             continue
 
@@ -202,13 +294,12 @@ def parse_all_files(options):
         for bf in bin_files:
             options.in_file = _r + '/' + bf
             print('Parsing file: ' + options.in_file)
-
             parse_file(options)
 
 if __name__ == "__main__":
     parser = OptionParser()
-    batch_group = parser.add_option_group('General Options')
-    parser.add_option("-f", "--in-file", type="string", default="./signal.bin",
+    batch_group = parser.add_option_group('Single File Options')
+    parser.add_option("-f", "--in-file", type="string", default=None,
                      help="Bin file to read [default=%default].")
     parser.add_option("", "--fft-size", type="int", default=5120,
                      help="FFT size used/to use [default=%default].")
@@ -226,10 +317,10 @@ if __name__ == "__main__":
                       help="Group block of FFTs and extract the average [default=%default].")
 
     batch_group = parser.add_option_group('Batch Conversion')
-    batch_group.add_option("", "--folder", type="string", default='.',
-                     help="Specify the folder to parse all files [default=%default].")
-    batch_group.add_option("", "--parse-all", action="store_true", default=False,
+    batch_group.add_option("", "--batch", action="store_true", default=False,
                      help="Parse all files in FOLDER [default=%default].")
+    batch_group.add_option("", "--src-folder", type="string", default='.',
+                     help="Specify the folder to parse all files [default=%default].")
 
     img_group = parser.add_option_group('Image Conversion')
     batch_group.add_option("", "--gen-img", action="store_true", default=False,
@@ -238,6 +329,8 @@ if __name__ == "__main__":
                          help="Ouput image extension [default=%default].")
     img_group.add_option("", "--binarize", action="store_true", default=False,
                          help="Save binarized version of image [default=%default].")
+    img_group.add_option("", "--spectogram", action="store_true", default=False,
+                         help="Save spectogram version of bin file [default=%default].")
     img_group.add_option("", "--crop", action="store_true", default=False,
                          help="Save cropped version of image [default=%default]. Edit CROP variable to change crop coordinates.")
     batch_group.add_option("", "--dst-folder", type="string", default=None,
@@ -249,13 +342,20 @@ if __name__ == "__main__":
     csv_group.add_option("", "--csv-file", type="string", default='csv.csv',
                      help="Specify the file to save the csv data [default=%default].")
 
-    (options, args) = parser.parse_args ()
+    lines_group = parser.add_option_group('PlotLines Generation')
+    lines_group.add_option("", "--gen-plotlines", action="store_true", default=False,
+                     help="Genenerate plot lines files [default=%default].")
 
-    if not (options.gen_img or options.gen_csv):
-        print("Must specify --gen-img or --gen-csv [or both]")
+    (options, args) = parser.parse_args()
+
+    if not (options.gen_img or options.gen_csv or options.gen_plotlines):
+        print("Must specify --gen-img or --gen-csv or --gen-plotlines[or both]")
         sys.exit(1)
 
-    if options.parse_all:
+    if options.batch:
         parse_all_files(options)
-    else:
+    elif options.in_file:
         parse_file(options)
+
+    if options.gen_plotlines:
+        gen_the_lines(options)
