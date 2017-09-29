@@ -1,0 +1,24 @@
+auto_my_life.bash:
+  - Whats used for:
+    - Do everything
+  - Setup:
+    - Check do_usrp_tests_2pcs.py
+  - Functionality:
+
+do_usrp_tests_2pcs.py
+  - Whats used for:
+    - Generate a trace file in the RX machine
+  - Setup:
+    - Start vr1_tx and vr2_tx in lxd containers. They must be configured to connect to the usrp container
+    - Make sure txfreq1, samprate1, amplitude1 are configured in fg-stuff/default
+  - Example:
+    python do_usrp_tests_2pcs.py "_01_0" will generate files rx_{}_01_0.bin in the RX
+
+img_from_bin_file.py
+  - Whats used for:
+    - Generate the img and csv files from trace files
+  - Setup:
+    - If --gen-csv: Check cf, br and vr_confs in gen_csv method
+    - Have a set of trace files name: "<folder>/<cf>_<amplitude>_<it>"
+  - Example:
+    - python ./img_from_bin_file --batch --src-folder ./ --dst-folder ./ --csv-file ./csv.csv -gen-img --gen-csv

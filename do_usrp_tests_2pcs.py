@@ -1,75 +1,69 @@
 import pexpect
 import time
+import xmlrpclib
+import sys
+
+RX_SSH_CMD = "ssh -CY connect@192.168.10.30"
+TX_SSH_CMD = "ssh -CY root@192.168.10.104"
+
+TX_SCRIPT_FOLDER =  "~/fg-stuff/"
+RX_SCRIPT_FOLDER =  "~/fg-stuff/"
+
+TX_GNURADIO_ADDR = "192.168.10.104:8084"
 
 
-RX_SCRIPT_FOLDER = "~/my-scripts/"
-RX_SCRIPT = "./gen_save_img.sh {MODE} {A1} {A2}"
+tx = pexpect.spawn(TX_SSH_CMD)
+rx = pexpect.spawn(RX_SSH_CMD)
 
-SSH_CMD = "ssh nodeuser@192.168.10.120"
+def do_one_test(cf, thefile):
+    rx.sendline("cd " + RX_SCRIPT_FOLDER)
 
-TX_SCRIPT_FOLDER =  "~/gr-hydra/apps/"
-TX_SCRIPT = {
-    'hydra-burst': './atomic/tx/hydra_async_tx.py',
-    'hydra-cont': './atomic/tx/hydra_tx.py',
+    tx.sendline("cd " + TX_SCRIPT_FOLDER)
+    tx.sendline("python test_tx_hydra.py &")
+    tx.expect("VR 1:")
+    print "Testing with NB-IoT at CF:" + str(cf)
 
-    'lte-burst': './no_hydra_tx/tx/single_radio_tx.py',
-    'nbiot-burst': './no_hydra_tx/tx/single_radio_tx.py',
-    'lte-cont': './no_hydra_tx/tx/single_radio_tx.py',
-    'nbiot-cont': './no_hydra_tx/tx/single_radio_tx.py'
-}
+    # set NB-IoT CF at usrp_hydra
+    print "... Waiting 5 secs for TX to start"
+    # cmd here
+    time.sleep(8)
 
-TX_OPT = {
-    'burst': "--vr1-file ./vr1fifo --vr2-file ./vr2fifo --tx-gain 60 --vr2-buffersize 1000 --vr1-tx-amplitude {A1} --vr2-tx-amplitude {A2}",
-    'cont': "--vr1-file ./vr1fifo --vr2-file ./vr2fifo --tx-gain 60 --vr2-buffersize 1000 --vr1-tx-amplitude {A1} --vr2-tx-amplitude {A2}",
-}
+    print "Configuring NB center frequency"
+    cli = xmlrpclib.ServerProxy("http://" + TX_GNURADIO_ADDR)
+    cli.set_freq2(cf)
 
-TX_EXTRA_OPTS = {
-    'hydra': "",
-    'lte': "--lte-radio",
-    'nbiot': "--nbiot-radio",
-}
+    # start capture
+    rx.sendline("python vr1_rx_to_file.py --thefile " + thefile + " &")
+    rx.expect("Performing timer loopback test")
+
+    print "... Waiting 20 secs for RX to finish"
+    time.sleep(20)
+    print "... Ok. Killing RX process"
+    rx.sendline("killall python; fg")
+    rx.sendline("cd " + RX_SCRIPT_FOLDER + "; rm *.dat") # remove temporary files
+
+    tx.sendline("killall python; fg")
+    tx.sendline("cd " + TX_SCRIPT_FOLDER + "; rm *.dat") # remove temporary files
+    print "... Done"
 
 def main():
-    remote = pexpect.spawn(SSH_CMD)
-    local = pexpect.spawn('zsh')
-
-    #remote.sendline("screen -x XXX")
-    #local.sendline("screen -x XXX")
-
-    remote.sendline("cd " + RX_SCRIPT_FOLDER)
-    local.sendline("cd " + TX_SCRIPT_FOLDER)
+    #rx.sendline("screen -x XXX")
+    #tx.sendline("screen -x XXX")
 
 
-    #for split in ['hydra', 'lte', 'nbiot']:
-    for split in ['hydra', 'lte', 'nbiot' ]:
-        for mode in ['cont', ]:
-            for A1, A2 in [
-                          ("00", "00"), ("00", "0.1"),  ("00", "0.5"), ("00", "1"),
-                          ("0.1", "00"), ("0.1", "0.1"),  ("0.1", "0.5"), ("0.1", "1"),
-                          ("0.5", "00"), ("0.5", "0.1"),  ("0.5", "0.5"), ("0.5", "1"),
-                          ("1", "00"), ("1", "0.1"),  ("1", "0.5"), ("1", "1")]:
-                print "Testing " + split + "-" + mode + " A1: " + A1 + ", A2:" + A2
+    cfin = int(947.1 * 10**6)
+    cffi = int(952.7 * 10**6)
+    step = int(100 * 10**3)
+    r2 = range(cfin, cffi, step)
 
-                tx_opt_string = TX_OPT[mode].format(A1 = A1, A2 = A2)
-                rx_script = RX_SCRIPT.format(MODE=split+'-'+mode, A1 = A1.replace('.',''), A2 = A2.replace(".", ""))
+    for cf in r2:
+        if sys.argv[1] is "":
+            thefile = "./rx_" + str(cf) + ".bin"
+        else:
+            thefile = './rx_' + str(cf) + sys.argv[1] + ".bin"
 
-                print "\t ... Starting Transmitter"
-                local.sendline(" ".join([TX_SCRIPT[split+"-"+mode], tx_opt_string, TX_EXTRA_OPTS[split]]))
-                print "\t ... Waiting for USRP"
-                local.expect("Start XMLRPC")
-                time.sleep(2)
-
-                print "\t ... Starting Receiver"
-                remote.sendline(" ".join(["bash", rx_script]))
-                print "... Waiting for DONE"
-
-                remote.expect("DONE")
-
-                print "\t ... Ok. Killing transmitter process"
-                print str(local.before)
-                local2 = pexpect.spawn('zsh')
-                local2.sendline("killall hydra_async_tx.py; killall hydra_tx.py; killall single_radio_tx.py; fg")
-                print "\t\t ... Done"
+        print ("RX saving to: " + thefile)
+        do_one_test(cf, thefile)
 
 if __name__ == '__main__':
     main()
