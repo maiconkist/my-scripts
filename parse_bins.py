@@ -19,6 +19,7 @@ BIN_DC =    -2
 
 
 
+# used to cut image in certain coordinates to better analize it
 CROP = { 'lte' :(910, 0, 2290, 200),
          'nbiot':(2894, 0, 3250, 200),
 }
@@ -131,6 +132,32 @@ def gen_csv(arr, options):
         fd.write(cf + " " + amplitude + " " + it + " ".join([str(x) for x in res]))
         fd.write("\n")
 
+def calculate_mse(bin1, bin2):
+    smallest = min(len(bin1), len(bin2))
+
+    bin1 = bin1[0:smallest]
+    bin2 = bin2[0:smallest]
+
+    mse = sum(abs(bin1 - bin2) ** 2) / smallest
+    return mse
+
+
+def gen_mse_file(options):
+    for _r, _d, _f in os.walk(options.src_folder):
+        if '.git' in _r:
+            continue
+
+        bin_files = [b for b in sorted(_f) if b.endswith('.bin') and options.pre_pattern in b]
+
+        for bf in bin_files:
+            prefile = _r + '/' + bf
+            posfile = _r + '/' + bf.replace(options.pre_pattern, options.pos_pattern)
+            mse = calculate_mse(from_bin_file(prefile), from_bin_file(posfile))
+
+            with open(options.mse_file, 'a+') as fd:
+                fd.write(prefile.replace(options.pre_pattern, "") + " " + str(mse) + "\n")
+
+
 def gen_heatmap(arr_norm, options, imgname):
     print('\t\t...saving heatmap image: ' + imgname)
     img = Image.fromarray(np.uint8(plt.get_cmap('Accent')(arr_norm) * 255.0))
@@ -158,7 +185,6 @@ def gen_heatmap(arr_norm, options, imgname):
 
 
 def gen_plotline(arr_parsed, imgname, eof=True):
-
     plt.plot(np.mean(arr_parsed, axis=0))
     print("\t... Saving plotline image: " + imgname)
     plt.savefig(imgname)
@@ -212,22 +238,22 @@ def parse_all_files(options):
 
 if __name__ == "__main__":
     parser = OptionParser()
-    batch_group = parser.add_option_group('Single File Options')
-    parser.add_option("-f", "--in-file", type="string", default=None,
+    single_group = parser.add_option_group('Single File Options')
+    single_group.add_option("-f", "--in-file", type="string", default=None,
                      help="Bin file to read [default=%default].")
-    parser.add_option("", "--fft-size", type="int", default=256,
+    single_group.add_option("", "--fft-size", type="int", default=256,
                      help="FFT size used/to use [default=%default].")
-    parser.add_option("", "--perform-fft", action="store_true", default=True,
+    single_group.add_option("", "--perform-fft", action="store_true", default=True,
                      help="Perform FFT [default=%default].")
-    parser.add_option("", "--lines-per-file", type="int", default=-1,
+    single_group.add_option("", "--lines-per-file", type="int", default=-1,
                      help="Block of samples to read from FILE [default=%default].")
-    parser.add_option("", "--in-pos", type="int", default=0,
+    single_group.add_option("", "--in-pos", type="int", default=0,
                      help="Index of first sample to read [default=%default].")
-    parser.add_option("", "--out-pos", type="int", default=-1,
+    single_group.add_option("", "--out-pos", type="int", default=-1,
                      help="Index of last sample to read [default=%default].")
-    parser.add_option("", "--samp-rate", type="float", default=1e6,
+    single_group.add_option("", "--samp-rate", type="float", default=1e6,
                       help="Sample rate used to generate file. Used to group FFT bins by TIME [default=%default].")
-    parser.add_option("", "--nfft-to-group", type="int", default=1,
+    single_group.add_option("", "--nfft-to-group", type="int", default=1,
                       help="Group block of FFTs and extract the average [default=%default].")
 
     batch_group = parser.add_option_group('Batch Conversion')
@@ -260,13 +286,25 @@ if __name__ == "__main__":
     lines_group.add_option("", "--gen-plotlines", action="store_true", default=False,
                      help="Genenerate plot lines files [default=%default].")
 
+    mse_group = parser.add_option_group('MSE Calculation Generation')
+    mse_group.add_option("", "--gen-mse", action="store_true", default=False,
+                     help="Genenerate MSE file [default=%default].")
+    mse_group.add_option("", "--mse-file", type="string", default='mse.csv',
+                     help="Specify the file to save the MSE data [default=%default].")
+    mse_group.add_option("", "--pre-pattern", type="string", default="pre-",
+                     help="Pattern in bin file to identify it contains IQ samples PRIOR to HyDRA [default=%default].")
+    mse_group.add_option("", "--pos-pattern", type="string", default="pos-",
+                     help="Pattern in bin file to identify it contains IQ samples AFTER HyDRA [default=%default].")
     (options, args) = parser.parse_args()
 
-    if not (options.gen_img or options.gen_csv or options.gen_plotlines):
-        print("Must specify --gen-img or --gen-csv or --gen-plotlines[or both]")
+    if not (options.gen_img or options.gen_csv or options.gen_mse or options.gen_plotlines):
+        print("Must specify --gen-img or --gen-csv or --gen-plotlines or --gen-mse")
         sys.exit(1)
 
     if options.batch:
         parse_all_files(options)
     elif options.in_file:
         parse_file(options)
+
+    if options.gen_mse:
+        gen_mse_file(options)
