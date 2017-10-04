@@ -145,17 +145,60 @@ def calculate_mse(bin1, bin2):
 def gen_mse_file(options):
     for _r, _d, _f in os.walk(options.src_folder):
         if '.git' in _r:
-            continue
+            con
 
         bin_files = [b for b in sorted(_f) if b.endswith('.bin') and options.pre_pattern in b]
 
-        for bf in bin_files:
+        for bf in sorted(bin_files):
             prefile = _r + '/' + bf
             posfile = _r + '/' + bf.replace(options.pre_pattern, options.pos_pattern)
             mse = calculate_mse(from_bin_file(prefile), from_bin_file(posfile))
 
+            fft, it, vr = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", prefile.split("/")[-1])
+
             with open(options.mse_file, 'a+') as fd:
-                fd.write(prefile.replace(options.pre_pattern, "") + " " + str(mse) + "\n")
+                fd.write(" ".join([str(fft), str(int(float(vr))), str(abs(int(it))), str(mse), "\n"]))
+
+def plot_mse_bars(options):
+    import csv
+
+    awk_str = r'{mse[$2][$1] += $4; mseq[$2][$1] += ($4 ^ 2); count[$2][$1] += 1;} END {for (vr in mse) {for (fft in mse[vr]){print fft " " vr " " mse[vr][fft]/count[vr][fft] " " sqrt((mseq[vr][fft]-mse[vr][fft]^2/count[vr][fft])/count[vr][fft]);}}}'
+    import subprocess as sp
+    args = ['awk', awk_str, options.mse_file]
+    p = sp.call(args, stdin = sp.PIPE, stdout = open('./plottable.csv', "w+"), stderr = sp.PIPE)
+
+    with open('./plottable.csv', 'r') as fd:
+       dat = fd.read().split('\n')
+
+    print dat
+
+    # cut-off a '' line at the end
+    if dat[-1] == '':
+        dat = dat[0:-1]
+
+    fft_filter = ['512', '1024', '2048', '4096']
+
+    vr1_mse = [ float(d.split(' ')[2]) for d in dat if d.split(' ')[1] == '1' and d.split(' ')[0] in fft_filter]
+    vr1_std = [ float(d.split(' ')[3]) for d in dat if d.split(' ')[1] == '1' and d.split(' ')[0] in fft_filter]
+    vr2_mse = [ float(d.split(' ')[2]) for d in dat if d.split(' ')[1] == '2' and d.split(' ')[0] in fft_filter]
+    vr2_std = [ float(d.split(' ')[3]) for d in dat if d.split(' ')[1] == '2' and d.split(' ')[0] in fft_filter]
+
+    N = len(fft_filter)
+    ind = np.arange(N)  # the x locations for the groups
+    width = 0.35       # the width of the bars
+
+    fig, ax = plt.subplots()
+    rects1 = ax.bar(ind, vr1_mse, width, color='blue', yerr=vr1_std,  label='LTE')
+    rects2 = ax.bar(ind + width, vr2_mse, width, color='green', yerr=vr2_std, label='NB-IoT')
+
+    # add some text for labels, title and axes ticks
+    ax.set_ylabel('Mean Square Error')
+    ax.set_xlabel('Hydra FFT M Size')
+    ax.set_xlim(-0.25, 4)
+    ax.set_xticks(ind + width / 2)
+    ax.set_xticklabels(fft_filter)
+    plt.legend()
+    plt.savefig("mse.pdf")
 
 
 def gen_heatmap(arr_norm, options, imgname):
@@ -307,4 +350,5 @@ if __name__ == "__main__":
         parse_file(options)
 
     if options.gen_mse:
-        gen_mse_file(options)
+        #gen_mse_file(options)
+        plot_mse_bars(options)

@@ -20,7 +20,7 @@ for amplitude in  ${AMPLITUDES[@]}; do
 
     awk '{
       snr[$1] += $4;
-      snrq[$1] += $4 ^ 2;
+      snrq[$1] += ($4 ^ 2);
       count[$1] += 1;
     }
     END{
