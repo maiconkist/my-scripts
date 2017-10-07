@@ -25,4 +25,4 @@ FFT=(512 1024 2048 4096)
 #    done
 #done
 
-python ../parse_bins.py --gen-mse --src-folder ./ --dst-folder ./ --mse-file mse.csv
+python2.7 ../parse_bins.py --gen-mse --src-folder ./ --dst-folder ./ --mse-file mse.csv
