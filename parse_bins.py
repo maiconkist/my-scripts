@@ -1,23 +1,17 @@
-#!env python
+#!env python2.7
 
 import sys
 from optparse import OptionParser
 import matplotlib.pyplot as plt
+from pylab import genfromtxt
 import numpy as np
 import os
 import re
 
 from PIL import Image
 
-
-
-hydra_filename_template= 'atomic_{mode}_{A1}A1_{A2}A2_4Msps_20Ms.bin'
-single_filename_template= '{radio}_{mode}_{A}_4Msps_20Ms.bin'
-
 BIN_NOISE = -1
 BIN_DC =    -2
-
-
 
 # used to cut image in certain coordinates to better analize it
 CROP = { 'lte' :(910, 0, 2290, 200),
@@ -116,7 +110,7 @@ def gen_csv(arr, options):
 
     res = []
     for idx, vr in enumerate(vr_confs):
-        arr2 = sum (arr)
+        arr2 = sum(arr)
 
         # sum arr values in indexes where bin_mask == vr id
         power = np.sum(arr2[bin_mask == idx]) / sum(bin_mask == idx)
@@ -131,6 +125,11 @@ def gen_csv(arr, options):
         cf, amplitude, it = re.findall("[-+]?[.]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", options.in_file.split("/")[-1])
         fd.write(cf + " " + amplitude + " " + it + " ".join([str(x) for x in res]))
         fd.write("\n")
+    awk_str = r'{snr[$1] += $4; snrq[$1] += ($4 ^ 2); count[$1] += 1;} END{for (a in snr) {print a " " snr[a]/count[a] " " sqrt((snrq[a]-snr[a]^2/count[a])/count[a]);}}'
+
+    import subprocess as sp
+    args = ['awk', awk_str, options.csv_file]
+    p = sp.call(args, stdin = sp.PIPE, stdout = open(options.csv_file.replace(".csv", "-plottable.csv"), "w+"), stderr = sp.PIPE)
 
 def calculate_mse(bin1, bin2):
     smallest = min(len(bin1), len(bin2))
@@ -158,6 +157,7 @@ def gen_mse_file(options):
 
             with open(options.mse_file, 'a+') as fd:
                 fd.write(" ".join([str(fft), str(int(float(vr))), str(abs(int(it))), str(mse), "\n"]))
+
 
 def plot_mse_bars(options):
     import csv
@@ -199,6 +199,29 @@ def plot_mse_bars(options):
     ax.set_xticklabels(fft_filter)
     plt.legend()
     plt.savefig("mse.pdf")
+
+def plot_guard_band(options):
+    datas = [
+        genfromtxt("0_0/plottable.csv"),
+        genfromtxt("0_05/plottable.csv"),
+        genfromtxt("0_1/plottable.csv"),
+        genfromtxt("0_5/plottable.csv"),
+        genfromtxt("1_0/plottable.csv"),
+    ]
+
+    #datas[0] = np.array([x for x in datas[0] if x[0] > 948.2e6 and x[0] < 950e6])
+    #datas[1] = np.array([x for x in datas[1] if x[0] > 948.2e6 and x[0] < 950e6])
+    #datas[2] = np.array([x for x in datas[2] if x[0] > 948.2e6 and x[0] < 950e6])
+    #datas[3] = np.array([x for x in datas[3] if x[0] > 948.2e6 and x[0] < 950e6])
+
+    for d, m in zip(datas, ['r+', 'b-', 'g^', 'y.', 'bo']):
+        plt.plot(d[:,0], d[:,1], m )
+
+    plt.ylabel("SNR")
+    plt.xlabel("Guard Band [KHz]")
+    plt.legend(("0.0", "0.05", "0.1", "0.5", "1.0"))
+
+    plt.savefig("guard_band_snr.pdf")
 
 
 def gen_heatmap(arr_norm, options, imgname):
@@ -352,3 +375,5 @@ if __name__ == "__main__":
     if options.gen_mse:
         #gen_mse_file(options)
         plot_mse_bars(options)
+
+    plot_guard_band(options)

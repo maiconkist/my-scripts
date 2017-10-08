@@ -50,7 +50,6 @@ def main():
     #rx.sendline("screen -x XXX")
     #tx.sendline("screen -x XXX")
 
-
     cfin = int(947.1 * 10**6)
     cffi = int(952.7 * 10**6)
     step = int(100 * 10**3)

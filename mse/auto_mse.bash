@@ -25,4 +25,4 @@ for fft in ${FFT[@]}; do
     done
 done
 
-python ../parse_bins.py --gen-mse --src-folder ./ --dst-folder ./ --mse-file mse.csv
+python2.7 ../parse_bins.py --gen-mse --src-folder ./ --dst-folder ./ --mse-file mse.csv
