@@ -2,6 +2,8 @@
 
 import sys
 from optparse import OptionParser
+
+import matplotlib
 import matplotlib.pyplot as plt
 from pylab import genfromtxt
 import numpy as np
@@ -206,20 +208,24 @@ def plot_guard_band(options):
         genfromtxt("0_05/plottable.csv"),
         genfromtxt("0_1/plottable.csv"),
         genfromtxt("0_5/plottable.csv"),
-        genfromtxt("1_0/plottable.csv"),
+        #genfromtxt("1_0/plottable.csv"),
     ]
 
-    #datas[0] = np.array([x for x in datas[0] if x[0] > 948.2e6 and x[0] < 950e6])
-    #datas[1] = np.array([x for x in datas[1] if x[0] > 948.2e6 and x[0] < 950e6])
-    #datas[2] = np.array([x for x in datas[2] if x[0] > 948.2e6 and x[0] < 950e6])
-    #datas[3] = np.array([x for x in datas[3] if x[0] > 948.2e6 and x[0] < 950e6])
+    datas[0] = np.array([x for x in datas[0] if  x[0] < 949.27e6])
+    datas[1] = np.array([x for x in datas[1] if  x[0] < 949.27e6])
+    datas[2] = np.array([x for x in datas[2] if  x[0] < 949.27e6])
+    datas[3] = np.array([x for x in datas[3] if  x[0] < 949.27e6])
+    #datas[4] = np.array([x for x in datas[4] if  x[0] < 949.27e6])
 
-    for d, m in zip(datas, ['r+', 'b-', 'g^', 'y.', 'bo']):
-        plt.plot(d[:,0], d[:,1], m )
+    for d, cor, mar in zip(datas, ['r', 'b', 'g', 'y', 'k'], ['o', '^', 's', '*', 'v']):
+        plt.errorbar(d[:,0] - 948.25e6, d[:,1], yerr=d[:,2], linestyle='-', marker = mar, color=cor)
 
-    plt.ylabel("SNR")
+    plt.ylabel("SINR")
     plt.xlabel("Guard Band [KHz]")
-    plt.legend(("0.0", "0.05", "0.1", "0.5", "1.0"))
+    plt.xticks( (200e3, 400e3, 600e3, 800e3, 1e6), ('200 KHz', '400 KHz', '600KHz', '800 KHz', '1 MHz') )
+    plt.xticks()
+
+    plt.legend(("LTE Only", "Normalized", "2x Amplitude", "10x Amplitude"), loc = 'lower right')
 
     plt.savefig("guard_band_snr.pdf")
 
@@ -367,6 +373,8 @@ if __name__ == "__main__":
         print("Must specify --gen-img or --gen-csv or --gen-plotlines or --gen-mse")
         sys.exit(1)
 
+    plot_guard_band(options)
+
     if options.batch:
         parse_all_files(options)
     elif options.in_file:
@@ -376,4 +384,3 @@ if __name__ == "__main__":
         #gen_mse_file(options)
         plot_mse_bars(options)
 
-    plot_guard_band(options)

@@ -17,5 +17,5 @@ for amplitude in  ${AMPLITUDES[@]}; do
     #mkdir ./$fol
     #scp connect@192.168.10.30:~/fg-stuff/rx_9*_${amplitude/./}_${it} $fol
 
-    python ../parse_bins.py --batch --src-folder $fol --dst-folder $fol --csv-file $fol/csv.csv --gen-img --gen-csv
+    python2.7 ../parse_bins.py --batch --src-folder $fol --dst-folder $fol --csv-file $fol/csv.csv --gen-img --gen-csv
 done
