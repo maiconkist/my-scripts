@@ -23,7 +23,6 @@ CROP = { 'lte' :(910, 0, 2290, 200),
 def from_bin_file(fname):
     fd = open(fname, "rb")
     arr = np.fromfile(fd, np.dtype(np.complex64))
-
     return arr
 
 def parse_arr(arr, options):
@@ -180,10 +179,10 @@ def plot_mse_bars(options):
 
     fft_filter = ['512', '1024', '2048', '4096']
 
-    vr1_mse = [ float(d.split(' ')[2]) for d in dat if d.split(' ')[1] == '1' and d.split(' ')[0] in fft_filter]
-    vr1_std = [ float(d.split(' ')[3]) for d in dat if d.split(' ')[1] == '1' and d.split(' ')[0] in fft_filter]
-    vr2_mse = [ float(d.split(' ')[2]) for d in dat if d.split(' ')[1] == '2' and d.split(' ')[0] in fft_filter]
-    vr2_std = [ float(d.split(' ')[3]) for d in dat if d.split(' ')[1] == '2' and d.split(' ')[0] in fft_filter]
+    vr1_mse = [ 10* np.log10(float(d.split(' ')[2])) for d in dat if d.split(' ')[1] == '1' and d.split(' ')[0] in fft_filter]
+    vr1_std = [ 10*np.log10(float(d.split(' ')[3])) for d in dat if d.split(' ')[1] == '1' and d.split(' ')[0] in fft_filter]
+    vr2_mse = [ 10*np.log10(float(d.split(' ')[2])) for d in dat if d.split(' ')[1] == '2' and d.split(' ')[0] in fft_filter]
+    vr2_std = [ 10*np.log10(float(d.split(' ')[3])) for d in dat if d.split(' ')[1] == '2' and d.split(' ')[0] in fft_filter]
 
     N = len(fft_filter)
     ind = np.arange(N)  # the x locations for the groups
@@ -204,31 +203,76 @@ def plot_mse_bars(options):
 
 def plot_guard_band(options):
     datas = [
-        genfromtxt("0_0/plottable.csv"),
+        genfromtxt( "0_0/plottable.csv"),
         genfromtxt("0_05/plottable.csv"),
-        genfromtxt("0_1/plottable.csv"),
-        genfromtxt("0_5/plottable.csv"),
-        #genfromtxt("1_0/plottable.csv"),
+        genfromtxt( "0_1/plottable.csv"),
+        genfromtxt( "0_5/plottable.csv"),
     ]
 
     datas[0] = np.array([x for x in datas[0] if  x[0] < 949.27e6])
     datas[1] = np.array([x for x in datas[1] if  x[0] < 949.27e6])
     datas[2] = np.array([x for x in datas[2] if  x[0] < 949.27e6])
     datas[3] = np.array([x for x in datas[3] if  x[0] < 949.27e6])
-    #datas[4] = np.array([x for x in datas[4] if  x[0] < 949.27e6])
+    #datas[0] = np.array([x for x in datas[0] if  x[0] <= 949e6])
+    #datas[1] = np.array([x for x in datas[1] if  x[0] <= 949e6])
+    #datas[2] = np.array([x for x in datas[2] if  x[0] <= 949e6])
+    #datas[3] = np.array([x for x in datas[3] if  x[0] <= 949e6])
 
     for d, cor, mar in zip(datas, ['r', 'b', 'g', 'y', 'k'], ['o', '^', 's', '*', 'v']):
         plt.errorbar(d[:,0] - 948.25e6, d[:,1], yerr=d[:,2], linestyle='-', marker = mar, color=cor)
+        #plt.errorbar(d[:,0] - 948e6, d[:,1], yerr=d[:,2], linestyle='-', marker = mar, color=cor)
 
     plt.ylabel("SINR")
+    plt.ylim([0,10])
     plt.xlabel("Guard Band [KHz]")
-    plt.xticks( (200e3, 400e3, 600e3, 800e3, 1e6), ('200 KHz', '400 KHz', '600KHz', '800 KHz', '1 MHz') )
+    plt.xticks((200e3, 400e3, 600e3, 800e3, 1e6), ('200 KHz', '400 KHz', '600KHz', '800 KHz', '1 MHz'))
     plt.xticks()
 
     plt.legend(("LTE Only", "Normalized", "2x Amplitude", "10x Amplitude"), loc = 'lower right')
 
     plt.savefig("guard_band_snr.pdf")
 
+def plot_cpu_overhead(options):
+    awk_str = r'{cpu += $2; cpuq += ($2 ^ 2); count += 1;} END{print "%s " cpu/count " " sqrt((cpuq-cpu^2/count)/count);}'
+
+    for _r, _d, _f in os.walk(options.src_folder):
+        cpu_files = [b for b in sorted(_f) if b.endswith('.txt') and 'cpu-' in b]
+
+    for cf in sorted(cpu_files):
+        import subprocess as sp
+
+        args = ['awk', awk_str % cf.replace(".txt", "").split("-")[1], cf]
+        #p = sp.call(args, stdin = sp.PIPE, stdout = open("cpu-usage.txt", "a+"), stderr = sp.PIPE)
+
+    data = open("cpu-usage.txt", "r").readlines()
+
+    group1 = ['hydra', 'vr1_hydra', 'vr2_hydra']
+    group2 = ['vr1_all', 'vr2_all' ]
+
+    data1 = [float(x.split(' ')[1]) for x in data if bool(set(x.split(' ')) & set(group1))]
+    data2 = [float(x.split(' ')[1]) for x in data if bool(set(x.split(' ')) & set(group2))]
+
+    width = 0.35    # the width of the bars: can also be len(x) sequence
+    ind = np.array([1, 2])  # the x locations for the groups
+
+    p11 = plt.bar(ind[0], data1[0], width, color = 'b')
+    p12 = plt.bar(ind[0], data1[1], width, bottom = data1[0], color='g' )
+    p13 = plt.bar(ind[0], data1[2], width, bottom = data1[0] + data1[1], color='r')
+
+    p21 = plt.bar(ind[1], data2[0], width, color='b')
+    p22 = plt.bar(ind[1], data2[1], width, bottom = data2[0], color='g')
+
+    plt.ylabel('CPU Utilization [%]')
+    plt.xticks(ind+0.175, ('HyDRA', 'Standalone'))
+    plt.yticks(np.arange(0, 51, 10))
+    plt.legend((p11[0], p12[0], p13[0]), ('LTE', 'NB-IoT', 'HyDRA'))
+
+    plt.text(ind[0] + width/2, sum(data1) + 1.0, '%4.2f%%' % sum(data1), ha='center', va='bottom')
+    plt.text(ind[1] + width/2, sum(data2) + 1.0, '%4.2f%%' % sum(data2), ha='center', va='bottom')
+
+
+    plt.xlim((0.85, 2.5))
+    plt.savefig("cpu-usage.pdf")
 
 def gen_heatmap(arr_norm, options, imgname):
     print('\t\t...saving heatmap image: ' + imgname)
@@ -358,6 +402,14 @@ if __name__ == "__main__":
     lines_group.add_option("", "--gen-plotlines", action="store_true", default=False,
                      help="Genenerate plot lines files [default=%default].")
 
+    gb_group = parser.add_option_group('Plot Guard-Band Lines')
+    gb_group.add_option("", "--plot-gb", action="store_true", default=False,
+                     help="Genenerate Guard-Band plot [default=%default].")
+
+    cpu_group = parser.add_option_group('Plot CPU Overhead Lines')
+    cpu_group.add_option("", "--plot-cpu", action="store_true", default=False,
+                     help="Genenerate Guard-Band plot [default=%default].")
+
     mse_group = parser.add_option_group('MSE Calculation Generation')
     mse_group.add_option("", "--gen-mse", action="store_true", default=False,
                      help="Genenerate MSE file [default=%default].")
@@ -369,18 +421,21 @@ if __name__ == "__main__":
                      help="Pattern in bin file to identify it contains IQ samples AFTER HyDRA [default=%default].")
     (options, args) = parser.parse_args()
 
-    if not (options.gen_img or options.gen_csv or options.gen_mse or options.gen_plotlines):
-        print("Must specify --gen-img or --gen-csv or --gen-plotlines or --gen-mse")
+    if not (options.gen_img or options.gen_csv or options.gen_mse or options.gen_plotlines, options.plot_gb or options.plot_cpu):
+        print("Must specify --gen-img or --gen-csv or --gen-plotlines or --gen-mse or --gen-plotlines or --plot-gb or --plot-cpu")
         sys.exit(1)
 
-    plot_guard_band(options)
+#    if options.batch:
+#        parse_all_files(options)
+#    elif options.in_file:
+#        parse_file(options)
 
-    if options.batch:
-        parse_all_files(options)
-    elif options.in_file:
-        parse_file(options)
+    if options.plot_gb:
+        plot_guard_band(options)
+
+    if options.plot_cpu:
+        plot_cpu_overhead(options)
 
     if options.gen_mse:
-        #gen_mse_file(options)
+        gen_mse_file(options)
         plot_mse_bars(options)
-
