@@ -242,36 +242,37 @@ def plot_cpu_overhead(options):
         import subprocess as sp
 
         args = ['awk', awk_str % cf.replace(".txt", "").split("-")[1], cf]
-        #p = sp.call(args, stdin = sp.PIPE, stdout = open("cpu-usage.txt", "a+"), stderr = sp.PIPE)
+        p = sp.call(args, stdin = sp.PIPE, stdout = open("cpu-usage.txt", "a+"), stderr = sp.PIPE)
 
     data = open("cpu-usage.txt", "r").readlines()
 
     group1 = ['hydra', 'vr1_hydra', 'vr2_hydra']
-    group2 = ['vr1_all', 'vr2_all' ]
+    #group2 = ['vr1_all', 'vr2_all' ]
 
     data1 = [float(x.split(' ')[1]) for x in data if bool(set(x.split(' ')) & set(group1))]
-    data2 = [float(x.split(' ')[1]) for x in data if bool(set(x.split(' ')) & set(group2))]
+    #data2 = [float(x.split(' ')[1]) for x in data if bool(set(x.split(' ')) & set(group2))]
 
-    width = 0.35    # the width of the bars: can also be len(x) sequence
+    width = 0.15    # the width of the bars: can also be len(x) sequence
     ind = np.array([1, 2])  # the x locations for the groups
 
     p11 = plt.bar(ind[0], data1[0], width, color = 'b')
     p12 = plt.bar(ind[0], data1[1], width, bottom = data1[0], color='g' )
     p13 = plt.bar(ind[0], data1[2], width, bottom = data1[0] + data1[1], color='r')
 
-    p21 = plt.bar(ind[1], data2[0], width, color='b')
-    p22 = plt.bar(ind[1], data2[1], width, bottom = data2[0], color='g')
+    #p21 = plt.bar(ind[1], data2[0], width, color='b')
+    #p22 = plt.bar(ind[1], data2[1], width, bottom = data2[0], color='g')
 
     plt.ylabel('CPU Utilization [%]')
-    plt.xticks(ind+0.175, ('HyDRA', 'Standalone'))
+    #plt.xticks(ind+0.175, ('HyDRA', 'Standalone'))
+    plt.tick_params(axis='x', which='both', bottom='off', top='off', labelbottom='off')
     plt.yticks(np.arange(0, 51, 10))
     plt.legend((p11[0], p12[0], p13[0]), ('LTE', 'NB-IoT', 'HyDRA'))
 
-    plt.text(ind[0] + width/2, sum(data1) + 1.0, '%4.2f%%' % sum(data1), ha='center', va='bottom')
-    plt.text(ind[1] + width/2, sum(data2) + 1.0, '%4.2f%%' % sum(data2), ha='center', va='bottom')
-
+    plt.text(ind[0], sum(data1) + 2.0, '%4.2f%%' % sum(data1), ha='center', va='bottom')
+    #plt.text(ind[1] + width/2, sum(data2) + 1.0, '%4.2f%%' % sum(data2), ha='center', va='bottom')
 
     plt.xlim((0.85, 2.5))
+    plt.xlim((0.90, 1.25))
     plt.savefig("cpu-usage.pdf")
 
 def gen_heatmap(arr_norm, options, imgname):
