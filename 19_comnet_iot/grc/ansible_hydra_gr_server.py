@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Ansible Hydra Gr Server
-# Generated: Mon Feb 18 20:33:57 2019
+# Generated: Mon Feb 18 21:21:30 2019
 ##################################################
 
 from gnuradio import eng_notation
@@ -17,7 +17,7 @@ import threading
 
 class ansible_hydra_gr_server(gr.top_block):
 
-    def __init__(self, ansibleFreqRx=919.75e6+3e6, ansibleFreqTx=919.75e6, ansibleIP='192.168.5.77:5000'):
+    def __init__(self, ansibleFreqRx='919.75e6', ansibleFreqTx='919.75e6', ansibleIP='192.168.5.77:5000'):
         gr.top_block.__init__(self, "Ansible Hydra Gr Server")
 
         ##################################################
@@ -31,10 +31,10 @@ class ansible_hydra_gr_server(gr.top_block):
         # Blocks
         ##################################################
         self.ahydra_gr_server_0 = hydra.hydra_gr_server('ansibleIP:5000')
-        if ansibleFreqTx > 0 and 2e6 > 0 and 2048 > 0:
-           self.ahydra_gr_server_0.set_tx_config(ansibleFreqTx, 2e6, 2048, "USRP")
-        if ansibleFreqRx > 0 and 2e6 > 0 and 2048 > 0:
-           self.ahydra_gr_server_0.set_rx_config(ansibleFreqRx, 2e6, 2048, "USRP")
+        if float(ansibleFreqTx) > 0 and 2e6 > 0 and 2048 > 0:
+           self.ahydra_gr_server_0.set_tx_config(float(ansibleFreqTx), 2e6, 2048, "USRP")
+        if float(ansibleFreqRx) > 0 and 2e6 > 0 and 2048 > 0:
+           self.ahydra_gr_server_0.set_rx_config(float(ansibleFreqRx), 2e6, 2048, "USRP")
         self.ahydra_gr_server_0_thread = threading.Thread(target=self.ahydra_gr_server_0.start_server)
         self.ahydra_gr_server_0_thread.daemon = True
         self.ahydra_gr_server_0_thread.start()
@@ -61,10 +61,10 @@ class ansible_hydra_gr_server(gr.top_block):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
-        "", "--ansibleFreqRx", dest="ansibleFreqRx", type="eng_float", default=eng_notation.num_to_str(919.75e6+3e6),
+        "", "--ansibleFreqRx", dest="ansibleFreqRx", type="string", default='919.75e6',
         help="Set ansibleFreqRx [default=%default]")
     parser.add_option(
-        "", "--ansibleFreqTx", dest="ansibleFreqTx", type="eng_float", default=eng_notation.num_to_str(919.75e6),
+        "", "--ansibleFreqTx", dest="ansibleFreqTx", type="string", default='919.75e6',
         help="Set ansibleFreqTx [default=%default]")
     parser.add_option(
         "", "--ansibleIP", dest="ansibleIP", type="string", default='192.168.5.77:5000',

@@ -113,7 +113,7 @@
     </param>
     <param>
       <key>rx_center_frequency</key>
-      <value>ansibleFreqRx</value>
+      <value>float(ansibleFreqRx)</value>
     </param>
     <param>
       <key>rx_fft_size</key>
@@ -129,7 +129,7 @@
     </param>
     <param>
       <key>tx_center_frequency</key>
-      <value>ansibleFreqTx</value>
+      <value>float(ansibleFreqTx)</value>
     </param>
     <param>
       <key>tx_fft_size</key>
@@ -176,11 +176,11 @@
     </param>
     <param>
       <key>type</key>
-      <value>eng_float</value>
+      <value>string</value>
     </param>
     <param>
       <key>value</key>
-      <value>919.75e6+3e6</value>
+      <value>919.75e6</value>
     </param>
   </block>
   <block>
@@ -219,7 +219,7 @@
     </param>
     <param>
       <key>type</key>
-      <value>eng_float</value>
+      <value>string</value>
     </param>
     <param>
       <key>value</key>

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Ansible Usrp 1Tx 1Rx
-# Generated: Mon Feb 18 20:34:30 2019
+# Generated: Mon Feb 18 21:22:57 2019
 ##################################################
 
 from gnuradio import blocks
@@ -21,7 +21,7 @@ import time
 
 class ansible_usrp_1tx_1rx(gr.top_block):
 
-    def __init__(self, ansibleFreqRx=919.75e6, ansibleFreqTx=919.75e6+3e6, ansibleID='1', bw=250e3, offset=-250e3):
+    def __init__(self, ansibleFreqRx=919.75e6, ansibleFreqTx=919.75e6, ansibleID='1', bw=250e3, offset=-250e3):
         gr.top_block.__init__(self, "Ansible Usrp 1Tx 1Rx")
 
         ##################################################
@@ -185,7 +185,7 @@ def argument_parser():
         "", "--ansibleFreqRx", dest="ansibleFreqRx", type="eng_float", default=eng_notation.num_to_str(919.75e6),
         help="Set ansibleFreqRx [default=%default]")
     parser.add_option(
-        "", "--ansibleFreqTx", dest="ansibleFreqTx", type="eng_float", default=eng_notation.num_to_str(919.75e6+3e6),
+        "", "--ansibleFreqTx", dest="ansibleFreqTx", type="eng_float", default=eng_notation.num_to_str(919.75e6),
         help="Set ansibleFreqTx [default=%default]")
     parser.add_option(
         "", "--ansibleID", dest="ansibleID", type="string", default='1',
