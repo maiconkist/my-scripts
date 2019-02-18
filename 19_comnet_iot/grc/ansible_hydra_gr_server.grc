@@ -113,7 +113,7 @@
     </param>
     <param>
       <key>rx_center_frequency</key>
-      <value>freqrx</value>
+      <value>ansibleFreqRx</value>
     </param>
     <param>
       <key>rx_fft_size</key>
@@ -129,7 +129,7 @@
     </param>
     <param>
       <key>tx_center_frequency</key>
-      <value>freqtx</value>
+      <value>ansibleFreqTx</value>
     </param>
     <param>
       <key>tx_fft_size</key>
@@ -156,7 +156,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(432, 40)</value>
+      <value>(464, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -164,7 +164,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>freqrx</value>
+      <value>ansibleFreqRx</value>
     </param>
     <param>
       <key>label</key>
@@ -180,7 +180,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>1.1e9+5e6</value>
+      <value>919.75e6+3e6</value>
     </param>
   </block>
   <block>
@@ -199,7 +199,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(328, 40)</value>
+      <value>(336, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -207,7 +207,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>freqtx</value>
+      <value>ansibleFreqTx</value>
     </param>
     <param>
       <key>label</key>
@@ -223,7 +223,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>1.1e9</value>
+      <value>919.75e6</value>
     </param>
   </block>
   <block>
@@ -242,7 +242,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(624, 36)</value>
+      <value>(672, 4)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -250,7 +250,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>hydraServerIP</value>
+      <value>ansibleIP</value>
     </param>
     <param>
       <key>label</key>

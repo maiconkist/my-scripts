@@ -338,7 +338,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1080, 96)</value>
+      <value>(1080, 88)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -362,7 +362,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>919.75e6 + 2e6</value>
+      <value>919.75e6+3e6</value>
     </param>
   </block>
   <block>
