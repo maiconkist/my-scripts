@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Ansible Hydra Gr Server
-# Generated: Mon Feb 18 22:04:52 2019
+# Generated: Mon Feb 18 22:22:42 2019
 ##################################################
 
 from gnuradio import eng_notation
@@ -17,7 +17,7 @@ import threading
 
 class ansible_hydra_gr_server(gr.top_block):
 
-    def __init__(self, ansibleFreqRx='919.75e6', ansibleFreqTx='919.75e6', ansibleIP='192.168.5.77'):
+    def __init__(self, ansibleFreqRx='919.75e6', ansibleFreqTx='919.75e6', ansibleIP='notValid'):
         gr.top_block.__init__(self, "Ansible Hydra Gr Server")
 
         ##################################################
@@ -30,7 +30,7 @@ class ansible_hydra_gr_server(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
-        self.ahydra_gr_server_0 = hydra.hydra_gr_server('ansibleIP:5000')
+        self.ahydra_gr_server_0 = hydra.hydra_gr_server(ansibleIP)
         if float(ansibleFreqTx) > 0 and 2e6 > 0 and 2048 > 0:
            self.ahydra_gr_server_0.set_tx_config(float(ansibleFreqTx), 2e6, 2048, "USRP")
         if float(ansibleFreqRx) > 0 and 2e6 > 0 and 2048 > 0:
@@ -67,7 +67,7 @@ def argument_parser():
         "", "--ansibleFreqTx", dest="ansibleFreqTx", type="string", default='919.75e6',
         help="Set ansibleFreqTx [default=%default]")
     parser.add_option(
-        "", "--ansibleIP", dest="ansibleIP", type="string", default='192.168.5.77',
+        "", "--ansibleIP", dest="ansibleIP", type="string", default='notValid',
         help="Set ansibleIP [default=%default]")
     return parser
 
