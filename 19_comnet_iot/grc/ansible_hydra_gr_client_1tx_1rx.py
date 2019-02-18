@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Ansible Hydra Gr Client 1Tx 1Rx
-# Generated: Mon Feb 18 21:22:35 2019
+# Generated: Mon Feb 18 22:19:50 2019
 ##################################################
 
 from gnuradio import blocks
@@ -21,7 +21,7 @@ import threading
 
 class ansible_hydra_gr_client_1tx_1rx(gr.top_block):
 
-    def __init__(self, ansibleFreqRx=919.75e6, ansibleFreqTx=919.75e6, ansibleID='1', bw=250e3, offset=-250e3):
+    def __init__(self, ansibleFreqRx=919.75e6, ansibleFreqTx=919.75e6, ansibleID='1', bw=250e3, offset=-250e3, ansibleIP='notValid'):
         gr.top_block.__init__(self, "Ansible Hydra Gr Client 1Tx 1Rx")
 
         ##################################################
@@ -32,6 +32,7 @@ class ansible_hydra_gr_client_1tx_1rx(gr.top_block):
         self.ansibleID = ansibleID
         self.bw = bw
         self.offset = offset
+        self.ansibleIP = ansibleIP
 
         ##################################################
         # Variables
@@ -61,9 +62,9 @@ class ansible_hydra_gr_client_1tx_1rx(gr.top_block):
         self.lora_encode_0 = lora.encode(spreading_factor, code_rate, ldr, header)
         self.lora_demod_0 = lora.demod(spreading_factor, ldr, 25.0, 2)
         self.lora_decode_0 = lora.decode(spreading_factor, code_rate, ldr, header)
-        self.hydra_gr_sink_0 = hydra.hydra_gr_client_sink(int(ansibleID), 'ansibleIP', 5000)
+        self.hydra_gr_sink_0 = hydra.hydra_gr_client_sink(int(ansibleID), ansibleIP, 5000)
         self.hydra_gr_sink_0.start_client(ansibleFreqTx + samp_rate/2 + (samp_rate * int(ansibleID)), samp_rate, 1000)
-        self.hydra_gr__source_0 = hydra.hydra_gr_client_source(int(ansibleID), 'ansibleIP', 'ansibleIP', 5000)
+        self.hydra_gr__source_0 = hydra.hydra_gr_client_source(int(ansibleID), ansibleIP, ansibleIP, 5000)
         self.hydra_gr__source_0.start_client(ansibleFreqRx + samp_rate/2 + (samp_rate * int(ansibleID)), samp_rate, 1000)
 
         self.blocks_tuntap_pdu_0 = blocks.tuntap_pdu('tap + ansibleID', 1000, False)
@@ -119,6 +120,12 @@ class ansible_hydra_gr_client_1tx_1rx(gr.top_block):
         self.blocks_rotator_cc_0_0.set_phase_inc((2 * math.pi * self.offset) / self.samp_rate)
         self.blocks_rotator_cc_0.set_phase_inc((2 * math.pi * self.offset) / self.samp_rate)
 
+    def get_ansibleIP(self):
+        return self.ansibleIP
+
+    def set_ansibleIP(self, ansibleIP):
+        self.ansibleIP = ansibleIP
+
     def get_spreading_factor(self):
         return self.spreading_factor
 
@@ -168,6 +175,9 @@ def argument_parser():
     parser.add_option(
         "", "--bw", dest="bw", type="eng_float", default=eng_notation.num_to_str(250e3),
         help="Set bw [default=%default]")
+    parser.add_option(
+        "", "--ansibleIP", dest="ansibleIP", type="string", default='notValid',
+        help="Set notValid [default=%default]")
     return parser
 
 
@@ -175,7 +185,7 @@ def main(top_block_cls=ansible_hydra_gr_client_1tx_1rx, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 
-    tb = top_block_cls(ansibleFreqRx=options.ansibleFreqRx, ansibleFreqTx=options.ansibleFreqTx, ansibleID=options.ansibleID, bw=options.bw)
+    tb = top_block_cls(ansibleFreqRx=options.ansibleFreqRx, ansibleFreqTx=options.ansibleFreqTx, ansibleID=options.ansibleID, bw=options.bw, ansibleIP=options.ansibleIP)
     tb.start()
     try:
         raw_input('Press Enter to quit: ')
