@@ -1,0 +1,78 @@
+- hosts: install
+  tasks:
+    - name: Install dependencies
+      apt:
+        name: "{{ packages }}"
+      vars:
+        packages:
+          - libzmq3-dev
+          - libfftw3-dev
+          - libopencv-dev
+          - gnuradio
+          - gnuradio-dev
+      become: yes
+
+    - name: Get source for HyDRA
+      git:
+        repo: 'https://github.com/maiconkist/gr-hydra.git'
+        dest: ~/gr-hydra
+        version: bleeding
+        update: true
+        force: yes
+
+    - name: Make HyDRA Directory
+      file:
+        path: /home/kistm/gr-hydra/build
+        state: directory
+    - name: CMake HyDRA
+      command: cmake ../
+      args:
+        chdir: /home/kistm/gr-hydra/build
+    - make:
+        chdir: /home/kistm/gr-hydra/build
+    - make:
+        chdir: /home/kistm/gr-hydra/build
+        target: install
+      become: yes
+
+    - name: Make GRC-HyDRA Directory
+      file:
+        path: /home/kistm/gr-hydra/grc_blocks/build
+        state: directory
+    - name: CMake HyDRA
+      command: cmake ../
+      args:
+        chdir: /home/kistm/gr-hydra/grc_blocks/build
+    - make:
+        chdir: /home/kistm/gr-hydra/grc_blocks/build
+    - make:
+        chdir: /home/kistm/gr-hydra/grc_blocks/build
+        target: install
+      become: yes
+
+    - name: Get source for gr-lora
+      git:
+        repo: 'https://github.com/BastilleResearch/gr-lora'
+        dest: ~/gr-lora
+        version: master
+        update: true
+        force: yes
+
+    - name: Make gr-lora Directory
+      file:
+        path: /home/kistm/gr-lora/build
+        state: directory
+    - name: CMake gr-lora
+      command: cmake ../
+      args:
+        chdir: /home/kistm/gr-lora/build
+    - make:
+        chdir: /home/kistm/gr-lora/build
+    - make:
+        chdir: /home/kistm/gr-lora/build
+        target: install
+      become: yes
+
+    - name: ldconfig
+      shell: ldconfig
+      become: yes
