@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Ansible Hydra Gr Client 1Tx 1Rx
-# Generated: Tue Feb 19 11:01:45 2019
+# Generated: Tue Feb 19 11:03:52 2019
 ##################################################
 
 from gnuradio import blocks
@@ -187,11 +187,6 @@ def main(top_block_cls=ansible_hydra_gr_client_1tx_1rx, options=None):
 
     tb = top_block_cls(ansibleFreqRx=options.ansibleFreqRx, ansibleFreqTx=options.ansibleFreqTx, ansibleID=options.ansibleID, ansibleIP=options.ansibleIP, bw=options.bw)
     tb.start()
-    try:
-        raw_input('Press Enter to quit: ')
-    except EOFError:
-        pass
-    tb.stop()
     tb.wait()
 
 
