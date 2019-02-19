@@ -647,7 +647,7 @@
     </param>
     <param>
       <key>ifn</key>
-      <value>tap + ansibleID</value>
+      <value>tap0</value>
     </param>
     <param>
       <key>mtu</key>
