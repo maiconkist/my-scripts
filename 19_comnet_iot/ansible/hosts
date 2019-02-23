@@ -3,4 +3,16 @@ lora-server
 lora-client
 
 [install:vars]
-ansible_ssh_common_args='-F ssh_config'
+ansible_ssh_common_args='-F /Users/mkist/.ssh/config'
+
+[servers]
+lora-server ansibleFreqTx=975e6 ansibleFreqRx=978e6 ansibleIP=192.168.5.134:5000
+
+[servers:vars]
+ansible_ssh_common_args='-F /Users/mkist/.ssh/config'
+
+[clients]
+lora-client ansibleID=1 ansibleFreqTx=974e6 ansibleFreqRx=977e6 ansibleIP=192.168.5.109
+
+[clients:vars]
+ansible_ssh_common_args='-F /Users/mkist/.ssh/config'

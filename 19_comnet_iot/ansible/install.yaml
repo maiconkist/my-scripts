@@ -1,78 +1,125 @@
-- hosts: install
+#- hosts: install
+#  tasks:
+#    - name: Install dependencies
+#      apt:
+#        name: "{{ packages }}"
+#      vars:
+#        packages:
+#          - libzmq3-dev
+#          - libfftw3-dev
+#          - libopencv-dev
+#          - gnuradio
+#          - gnuradio-dev
+#      become: yes
+#
+#    - name: Get source for HyDRA
+#      git:
+#        repo: 'https://github.com/maiconkist/gr-hydra.git'
+#        dest: ~/gr-hydra
+#        version: bleeding
+#        update: true
+#        force: yes
+#
+#    - name: Make HyDRA Directory
+#      file:
+#        path: /home/kistm/gr-hydra/build
+#        state: directory
+#    - name: CMake HyDRA
+#      command: cmake ../
+#      args:
+#        chdir: /home/kistm/gr-hydra/build
+#    - make:
+#        chdir: /home/kistm/gr-hydra/build
+#    - make:
+#        chdir: /home/kistm/gr-hydra/build
+#        target: install
+#      become: yes
+#
+#    - name: Make GRC-HyDRA Directory
+#      file:
+#        path: /home/kistm/gr-hydra/grc_blocks/build
+#        state: directory
+#    - name: CMake HyDRA
+#      command: cmake ../
+#      args:
+#        chdir: /home/kistm/gr-hydra/grc_blocks/build
+#    - make:
+#        chdir: /home/kistm/gr-hydra/grc_blocks/build
+#    - make:
+#        chdir: /home/kistm/gr-hydra/grc_blocks/build
+#        target: install
+#      become: yes
+#
+#    - name: Get source for gr-lora
+#      git:
+#        repo: 'https://github.com/BastilleResearch/gr-lora'
+#        dest: ~/gr-lora
+#        version: master
+#        update: true
+#        force: yes
+#
+#    - name: Make gr-lora Directory
+#      file:
+#        path: /home/kistm/gr-lora/build
+#        state: directory
+#    - name: CMake gr-lora
+#      command: cmake ../
+#      args:
+#        chdir: /home/kistm/gr-lora/build
+#    - make:
+#        chdir: /home/kistm/gr-lora/build
+#    - make:
+#        chdir: /home/kistm/gr-lora/build
+#        target: install
+#      become: yes
+#
+#    - name: ldconfig
+#      shell: ldconfig
+#      become: yes
+#
+
+- hosts: servers
   tasks:
-    - name: Install dependencies
-      apt:
-        name: "{{ packages }}"
-      vars:
-        packages:
-          - libzmq3-dev
-          - libfftw3-dev
-          - libopencv-dev
-          - gnuradio
-          - gnuradio-dev
-      become: yes
-
-    - name: Get source for HyDRA
+    - name: Get source for GRC files
       git:
-        repo: 'https://github.com/maiconkist/gr-hydra.git'
-        dest: ~/gr-hydra
-        version: bleeding
-        update: true
-        force: yes
-
-    - name: Make HyDRA Directory
-      file:
-        path: /home/kistm/gr-hydra/build
-        state: directory
-    - name: CMake HyDRA
-      command: cmake ../
-      args:
-        chdir: /home/kistm/gr-hydra/build
-    - make:
-        chdir: /home/kistm/gr-hydra/build
-    - make:
-        chdir: /home/kistm/gr-hydra/build
-        target: install
-      become: yes
-
-    - name: Make GRC-HyDRA Directory
-      file:
-        path: /home/kistm/gr-hydra/grc_blocks/build
-        state: directory
-    - name: CMake HyDRA
-      command: cmake ../
-      args:
-        chdir: /home/kistm/gr-hydra/grc_blocks/build
-    - make:
-        chdir: /home/kistm/gr-hydra/grc_blocks/build
-    - make:
-        chdir: /home/kistm/gr-hydra/grc_blocks/build
-        target: install
-      become: yes
-
-    - name: Get source for gr-lora
-      git:
-        repo: 'https://github.com/BastilleResearch/gr-lora'
-        dest: ~/gr-lora
+        repo: 'https://github.com/maiconkist/my-scripts.git'
+        dest: ~/my-scripts
         version: master
         update: true
         force: yes
 
-    - name: Make gr-lora Directory
+    - name: chmod /home/kistm/my-scripts/19_comnet_iot/grc/ansible_hydra_gr_server.py
       file:
-        path: /home/kistm/gr-lora/build
-        state: directory
-    - name: CMake gr-lora
-      command: cmake ../
-      args:
-        chdir: /home/kistm/gr-lora/build
-    - make:
-        chdir: /home/kistm/gr-lora/build
-    - make:
-        chdir: /home/kistm/gr-lora/build
-        target: install
+        path: /home/kistm/my-scripts/19_comnet_iot/grc/ansible_hydra_gr_server.py
+        state: file
+        mode: a+x
+
+    - name: Start GNUradio server.py script. Log to /tmp/
+      shell: "(nohup python /home/kistm/my-scripts/19_comnet_iot/grc/ansible_hydra_gr_server.py --ansibleFreqTx {{ ansibleFreqTx }} --ansibleFreqRx {{ ansibleFreqRx }} --ansibleIP {{ ansibleIP }}  </dev/null > /tmp/server.log 2>&1 &)"
+
+- hosts: clients
+  tasks:
+    - name: Get source for GRC files
+      git:
+        repo: 'https://github.com/maiconkist/my-scripts.git'
+        dest: ~/my-scripts
+        version: master
+        update: true
+        force: yes
+
+    - name: "Create tap0 interface"
+      shell: |
+        ip tuntap add mode tap dev tap0
+        ip addr add 1.1.1.1/24 dev tap0
+        ip link set dev tap0 up
+        ifconfig tap0 1.1.1.1
       become: yes
 
-    - name: ldconfig
-      shell: ldconfig
-      become: yes
+    - name: chmod /home/kistm/my-scripts/19_comnet_iot/grc/ansible_hydra_gr_client_1tx_1rx.py
+      file:
+        path: /home/kistm/my-scripts/19_comnet_iot/grc/ansible_hydra_gr_client_1tx_1rx.py
+        state: file
+        mode: a+x
+
+    - name: Start GNUradio .py script. Log to /tmp/
+      shell: "(nohup python /home/kistm/my-scripts/19_comnet_iot/grc/ansible_hydra_gr_client_1tx_1rx.py --ansibleFreqTx {{ ansibleFreqTx }}  --ansibleFreqRx {{ ansibleFreqRx }} --ansibleID {{ ansibleID }} --ansibleIP {{ ansibleIP }} </dev/null > /tmp/client.log 2>&1 &)"
