@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 ##################################################
 # GNU Radio Python Flow Graph
-# Title: Lora Usrp
-# Generated: Mon Feb 25 15:24:03 2019
+# Title: Lora Side1
+# Generated: Mon Feb 25 15:24:05 2019
 ##################################################
 
 if __name__ == '__main__':
@@ -33,12 +33,12 @@ import time
 from gnuradio import qtgui
 
 
-class lora_usrp(gr.top_block, Qt.QWidget):
+class lora_side1(gr.top_block, Qt.QWidget):
 
-    def __init__(self, bw=100e3, frequency=2.4505e9):
-        gr.top_block.__init__(self, "Lora Usrp")
+    def __init__(self, bw=100e3, frequency_rx=2.4505e9 + 5e6, frequency_tx=2.4505e9):
+        gr.top_block.__init__(self, "Lora Side1")
         Qt.QWidget.__init__(self)
-        self.setWindowTitle("Lora Usrp")
+        self.setWindowTitle("Lora Side1")
         qtgui.util.check_set_qss()
         try:
             self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
@@ -56,14 +56,15 @@ class lora_usrp(gr.top_block, Qt.QWidget):
         self.top_grid_layout = Qt.QGridLayout()
         self.top_layout.addLayout(self.top_grid_layout)
 
-        self.settings = Qt.QSettings("GNU Radio", "lora_usrp")
+        self.settings = Qt.QSettings("GNU Radio", "lora_side1")
         self.restoreGeometry(self.settings.value("geometry").toByteArray())
 
         ##################################################
         # Parameters
         ##################################################
         self.bw = bw
-        self.frequency = frequency
+        self.frequency_rx = frequency_rx
+        self.frequency_tx = frequency_tx
 
         ##################################################
         # Variables
@@ -93,7 +94,7 @@ class lora_usrp(gr.top_block, Qt.QWidget):
         	),
         )
         self.uhd_usrp_source_0.set_samp_rate(samp_rate)
-        self.uhd_usrp_source_0.set_center_freq(frequency, 0)
+        self.uhd_usrp_source_0.set_center_freq(frequency_rx, 0)
         self.uhd_usrp_source_0.set_gain(0, 0)
         self.uhd_usrp_source_0.set_antenna("RX2", 0)
         self.uhd_usrp_sink_0 = uhd.usrp_sink(
@@ -104,7 +105,7 @@ class lora_usrp(gr.top_block, Qt.QWidget):
         	),
         )
         self.uhd_usrp_sink_0.set_samp_rate(samp_rate)
-        self.uhd_usrp_sink_0.set_center_freq(frequency, 0)
+        self.uhd_usrp_sink_0.set_center_freq(frequency_tx, 0)
         self.uhd_usrp_sink_0.set_gain(gain, 0)
         self.uhd_usrp_sink_0.set_antenna("TX/RX", 0)
         self.pfb_arb_resampler_xxx_0_0 = pfb.arb_resampler_ccf(
@@ -123,16 +124,15 @@ class lora_usrp(gr.top_block, Qt.QWidget):
         self.lora_encode_0 = lora.encode(spreading_factor, code_rate, ldr, header)
         self.lora_demod_0 = lora.demod(spreading_factor, ldr, 25.0, 2)
         self.lora_decode_0 = lora.decode(spreading_factor, code_rate, ldr, header)
-        self.blocks_socket_pdu_0 = blocks.socket_pdu("UDP_SERVER", '127.0.0.1', '11111', 10000, False)
+        self.blocks_tuntap_pdu_0 = blocks.tuntap_pdu('tap0', 10000, False)
         self.blocks_rotator_cc_0_0 = blocks.rotator_cc((2 * math.pi * offset) / samp_rate)
         self.blocks_rotator_cc_0 = blocks.rotator_cc((2 * math.pi * offset) / samp_rate)
-        self.blocks_message_debug_0_0 = blocks.message_debug()
 
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.blocks_socket_pdu_0, 'pdus'), (self.lora_encode_0, 'in'))
-        self.msg_connect((self.lora_decode_0, 'out'), (self.blocks_message_debug_0_0, 'print'))
+        self.msg_connect((self.blocks_tuntap_pdu_0, 'pdus'), (self.lora_encode_0, 'in'))
+        self.msg_connect((self.lora_decode_0, 'out'), (self.blocks_tuntap_pdu_0, 'pdus'))
         self.msg_connect((self.lora_demod_0, 'out'), (self.lora_decode_0, 'in'))
         self.msg_connect((self.lora_encode_0, 'out'), (self.lora_mod_0, 'in'))
         self.connect((self.blocks_rotator_cc_0, 0), (self.pfb_arb_resampler_xxx_0, 0))
@@ -143,7 +143,7 @@ class lora_usrp(gr.top_block, Qt.QWidget):
         self.connect((self.uhd_usrp_source_0, 0), (self.blocks_rotator_cc_0_0, 0))
 
     def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "lora_usrp")
+        self.settings = Qt.QSettings("GNU Radio", "lora_side1")
         self.settings.setValue("geometry", self.saveGeometry())
         event.accept()
 
@@ -155,13 +155,19 @@ class lora_usrp(gr.top_block, Qt.QWidget):
         self.pfb_arb_resampler_xxx_0_0.set_rate(self.bw/self.samp_rate)
         self.pfb_arb_resampler_xxx_0.set_rate(self.samp_rate/self.bw)
 
-    def get_frequency(self):
-        return self.frequency
+    def get_frequency_rx(self):
+        return self.frequency_rx
 
-    def set_frequency(self, frequency):
-        self.frequency = frequency
-        self.uhd_usrp_source_0.set_center_freq(self.frequency, 0)
-        self.uhd_usrp_sink_0.set_center_freq(self.frequency, 0)
+    def set_frequency_rx(self, frequency_rx):
+        self.frequency_rx = frequency_rx
+        self.uhd_usrp_source_0.set_center_freq(self.frequency_rx, 0)
+
+    def get_frequency_tx(self):
+        return self.frequency_tx
+
+    def set_frequency_tx(self, frequency_tx):
+        self.frequency_tx = frequency_tx
+        self.uhd_usrp_sink_0.set_center_freq(self.frequency_tx, 0)
 
     def get_spreading_factor(self):
         return self.spreading_factor
@@ -219,12 +225,15 @@ class lora_usrp(gr.top_block, Qt.QWidget):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
-        "", "--frequency", dest="frequency", type="eng_float", default=eng_notation.num_to_str(2.4505e9),
-        help="Set frequency [default=%default]")
+        "", "--frequency-rx", dest="frequency_rx", type="eng_float", default=eng_notation.num_to_str(2.4505e9 + 5e6),
+        help="Set frequency_rx [default=%default]")
+    parser.add_option(
+        "", "--frequency-tx", dest="frequency_tx", type="eng_float", default=eng_notation.num_to_str(2.4505e9),
+        help="Set frequency_tx [default=%default]")
     return parser
 
 
-def main(top_block_cls=lora_usrp, options=None):
+def main(top_block_cls=lora_side1, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 
@@ -234,7 +243,7 @@ def main(top_block_cls=lora_usrp, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls(frequency=options.frequency)
+    tb = top_block_cls(frequency_rx=options.frequency_rx, frequency_tx=options.frequency_tx)
     tb.start()
     tb.show()
 
