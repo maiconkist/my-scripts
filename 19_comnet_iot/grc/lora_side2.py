@@ -3,20 +3,9 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lora Side2
-# Generated: Mon Feb 25 15:24:00 2019
+# Generated: Mon Feb 25 15:57:24 2019
 ##################################################
 
-if __name__ == '__main__':
-    import ctypes
-    import sys
-    if sys.platform.startswith('linux'):
-        try:
-            x11 = ctypes.cdll.LoadLibrary('libX11.so')
-            x11.XInitThreads()
-        except:
-            print "Warning: failed to XInitThreads()"
-
-from PyQt4 import Qt
 from gnuradio import blocks
 from gnuradio import eng_notation
 from gnuradio import gr
@@ -24,68 +13,38 @@ from gnuradio import uhd
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from gnuradio.filter import pfb
-from gnuradio.qtgui import Range, RangeWidget
 from optparse import OptionParser
 import lora
 import math
-import sys
 import time
-from gnuradio import qtgui
 
 
-class lora_side2(gr.top_block, Qt.QWidget):
+class lora_side2(gr.top_block):
 
-    def __init__(self, bw=100e3, frequency_tx=2.4505e9 + 5e6, frequency_rx=2.4505e9):
+    def __init__(self, bw=100e3, frequency_rx=2.4505e9, frequency_tx=2.4505e9 + 5e6, gain=0.9, offset=0):
         gr.top_block.__init__(self, "Lora Side2")
-        Qt.QWidget.__init__(self)
-        self.setWindowTitle("Lora Side2")
-        qtgui.util.check_set_qss()
-        try:
-            self.setWindowIcon(Qt.QIcon.fromTheme('gnuradio-grc'))
-        except:
-            pass
-        self.top_scroll_layout = Qt.QVBoxLayout()
-        self.setLayout(self.top_scroll_layout)
-        self.top_scroll = Qt.QScrollArea()
-        self.top_scroll.setFrameStyle(Qt.QFrame.NoFrame)
-        self.top_scroll_layout.addWidget(self.top_scroll)
-        self.top_scroll.setWidgetResizable(True)
-        self.top_widget = Qt.QWidget()
-        self.top_scroll.setWidget(self.top_widget)
-        self.top_layout = Qt.QVBoxLayout(self.top_widget)
-        self.top_grid_layout = Qt.QGridLayout()
-        self.top_layout.addLayout(self.top_grid_layout)
-
-        self.settings = Qt.QSettings("GNU Radio", "lora_side2")
-        self.restoreGeometry(self.settings.value("geometry").toByteArray())
 
         ##################################################
         # Parameters
         ##################################################
         self.bw = bw
-        self.frequency_tx = frequency_tx
         self.frequency_rx = frequency_rx
+        self.frequency_tx = frequency_tx
+        self.gain = gain
+        self.offset = offset
 
         ##################################################
         # Variables
         ##################################################
         self.spreading_factor = spreading_factor = 8
         self.samp_rate = samp_rate = 500e3
-        self.offset = offset = 0
         self.ldr = ldr = True
         self.header = header = False
-        self.gain = gain = 0.8
         self.code_rate = code_rate = 4
 
         ##################################################
         # Blocks
         ##################################################
-        self._offset_range = Range(-500e3, 500e3, 1e3, 0, 200)
-        self._offset_win = RangeWidget(self._offset_range, self.set_offset, 'offset', "counter_slider", float)
-        self.top_layout.addWidget(self._offset_win)
-        self._gain_range = Range(0, 1, 0.01, 0.8, 200)
-        self._gain_win = RangeWidget(self._gain_range, self.set_gain, 'gain', "counter_slider", float)
-        self.top_layout.addWidget(self._gain_win)
         self.uhd_usrp_source_0 = uhd.usrp_source(
         	",".join(('', '')),
         	uhd.stream_args(
@@ -142,11 +101,6 @@ class lora_side2(gr.top_block, Qt.QWidget):
         self.connect((self.pfb_arb_resampler_xxx_0_0, 0), (self.lora_demod_0, 0))
         self.connect((self.uhd_usrp_source_0, 0), (self.blocks_rotator_cc_0_0, 0))
 
-    def closeEvent(self, event):
-        self.settings = Qt.QSettings("GNU Radio", "lora_side2")
-        self.settings.setValue("geometry", self.saveGeometry())
-        event.accept()
-
     def get_bw(self):
         return self.bw
 
@@ -155,6 +109,13 @@ class lora_side2(gr.top_block, Qt.QWidget):
         self.pfb_arb_resampler_xxx_0_0.set_rate(self.bw/self.samp_rate)
         self.pfb_arb_resampler_xxx_0.set_rate(self.samp_rate/self.bw)
 
+    def get_frequency_rx(self):
+        return self.frequency_rx
+
+    def set_frequency_rx(self, frequency_rx):
+        self.frequency_rx = frequency_rx
+        self.uhd_usrp_source_0.set_center_freq(self.frequency_rx, 0)
+
     def get_frequency_tx(self):
         return self.frequency_tx
 
@@ -162,12 +123,21 @@ class lora_side2(gr.top_block, Qt.QWidget):
         self.frequency_tx = frequency_tx
         self.uhd_usrp_sink_0.set_center_freq(self.frequency_tx, 0)
 
-    def get_frequency_rx(self):
-        return self.frequency_rx
+    def get_gain(self):
+        return self.gain
 
-    def set_frequency_rx(self, frequency_rx):
-        self.frequency_rx = frequency_rx
-        self.uhd_usrp_source_0.set_center_freq(self.frequency_rx, 0)
+    def set_gain(self, gain):
+        self.gain = gain
+        self.uhd_usrp_sink_0.set_gain(self.gain, 0)
+
+
+    def get_offset(self):
+        return self.offset
+
+    def set_offset(self, offset):
+        self.offset = offset
+        self.blocks_rotator_cc_0_0.set_phase_inc((2 * math.pi * self.offset) / self.samp_rate)
+        self.blocks_rotator_cc_0.set_phase_inc((2 * math.pi * self.offset) / self.samp_rate)
 
     def get_spreading_factor(self):
         return self.spreading_factor
@@ -187,14 +157,6 @@ class lora_side2(gr.top_block, Qt.QWidget):
         self.blocks_rotator_cc_0_0.set_phase_inc((2 * math.pi * self.offset) / self.samp_rate)
         self.blocks_rotator_cc_0.set_phase_inc((2 * math.pi * self.offset) / self.samp_rate)
 
-    def get_offset(self):
-        return self.offset
-
-    def set_offset(self, offset):
-        self.offset = offset
-        self.blocks_rotator_cc_0_0.set_phase_inc((2 * math.pi * self.offset) / self.samp_rate)
-        self.blocks_rotator_cc_0.set_phase_inc((2 * math.pi * self.offset) / self.samp_rate)
-
     def get_ldr(self):
         return self.ldr
 
@@ -207,14 +169,6 @@ class lora_side2(gr.top_block, Qt.QWidget):
     def set_header(self, header):
         self.header = header
 
-    def get_gain(self):
-        return self.gain
-
-    def set_gain(self, gain):
-        self.gain = gain
-        self.uhd_usrp_sink_0.set_gain(self.gain, 0)
-
-
     def get_code_rate(self):
         return self.code_rate
 
@@ -225,11 +179,14 @@ class lora_side2(gr.top_block, Qt.QWidget):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
+        "", "--frequency-rx", dest="frequency_rx", type="eng_float", default=eng_notation.num_to_str(2.4505e9),
+        help="Set frequency_rx [default=%default]")
+    parser.add_option(
         "", "--frequency-tx", dest="frequency_tx", type="eng_float", default=eng_notation.num_to_str(2.4505e9 + 5e6),
         help="Set frequency_tx [default=%default]")
     parser.add_option(
-        "", "--frequency-rx", dest="frequency_rx", type="eng_float", default=eng_notation.num_to_str(2.4505e9),
-        help="Set frequency_rx [default=%default]")
+        "", "--gain", dest="gain", type="eng_float", default=eng_notation.num_to_str(0.9),
+        help="Set gain [default=%default]")
     return parser
 
 
@@ -237,21 +194,14 @@ def main(top_block_cls=lora_side2, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 
-    from distutils.version import StrictVersion
-    if StrictVersion(Qt.qVersion()) >= StrictVersion("4.5.0"):
-        style = gr.prefs().get_string('qtgui', 'style', 'raster')
-        Qt.QApplication.setGraphicsSystem(style)
-    qapp = Qt.QApplication(sys.argv)
-
-    tb = top_block_cls(frequency_tx=options.frequency_tx, frequency_rx=options.frequency_rx)
+    tb = top_block_cls(frequency_rx=options.frequency_rx, frequency_tx=options.frequency_tx, gain=options.gain)
     tb.start()
-    tb.show()
-
-    def quitting():
-        tb.stop()
-        tb.wait()
-    qapp.connect(qapp, Qt.SIGNAL("aboutToQuit()"), quitting)
-    qapp.exec_()
+    try:
+        raw_input('Press Enter to quit: ')
+    except EOFError:
+        pass
+    tb.stop()
+    tb.wait()
 
 
 if __name__ == '__main__':
