@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lora Side2
-# Generated: Mon Feb 25 16:03:01 2019
+# Generated: Mon Feb 25 16:11:46 2019
 ##################################################
 
 from gnuradio import blocks
@@ -86,11 +86,13 @@ class lora_side2(gr.top_block):
         self.blocks_tuntap_pdu_0 = blocks.tuntap_pdu('tap0', 10000, False)
         self.blocks_rotator_cc_0_0 = blocks.rotator_cc((2 * math.pi * offset) / samp_rate)
         self.blocks_rotator_cc_0 = blocks.rotator_cc((2 * math.pi * offset) / samp_rate)
+        self.blocks_message_debug_0 = blocks.message_debug()
 
         ##################################################
         # Connections
         ##################################################
         self.msg_connect((self.blocks_tuntap_pdu_0, 'pdus'), (self.lora_encode_0, 'in'))
+        self.msg_connect((self.lora_decode_0, 'out'), (self.blocks_message_debug_0, 'print_pdu'))
         self.msg_connect((self.lora_decode_0, 'out'), (self.blocks_tuntap_pdu_0, 'pdus'))
         self.msg_connect((self.lora_demod_0, 'out'), (self.lora_decode_0, 'in'))
         self.msg_connect((self.lora_encode_0, 'out'), (self.lora_mod_0, 'in'))
