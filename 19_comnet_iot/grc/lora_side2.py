@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lora Side2
-# Generated: Mon Feb 25 15:57:24 2019
+# Generated: Mon Feb 25 16:03:01 2019
 ##################################################
 
 from gnuradio import blocks
@@ -196,11 +196,6 @@ def main(top_block_cls=lora_side2, options=None):
 
     tb = top_block_cls(frequency_rx=options.frequency_rx, frequency_tx=options.frequency_tx, gain=options.gain)
     tb.start()
-    try:
-        raw_input('Press Enter to quit: ')
-    except EOFError:
-        pass
-    tb.stop()
     tb.wait()
 
 
