@@ -864,68 +864,6 @@
     </param>
   </block>
   <block>
-    <key>blocks_message_debug</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(752, 8)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_message_debug_1</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_message_debug</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>True</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(984, 176)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_message_debug_2</value>
-    </param>
-  </block>
-  <block>
     <key>blocks_rotator_cc</key>
     <param>
       <key>alias</key>
@@ -945,7 +883,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(584, 408)</value>
+      <value>(608, 408)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -988,7 +926,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(984, 736)</value>
+      <value>(960, 736)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1125,7 +1063,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -1176,7 +1114,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>2</value>
     </param>
     <param>
       <key>encoder</key>
@@ -1184,7 +1122,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(608, 160)</value>
+      <value>(560, 160)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1259,7 +1197,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2.4505e9 + 3e6</value>
+      <value>2.4505e9 + 1e6</value>
     </param>
   </block>
   <block>
@@ -1380,6 +1318,92 @@
     </param>
   </block>
   <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(944, 144)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>ip_pub</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>tcp://192.168.5.134:11111</value>
+    </param>
+  </block>
+  <block>
+    <key>parameter</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(944, 232)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>ip_sub</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>tcp://192.168.5.134:11111</value>
+    </param>
+  </block>
+  <block>
     <key>lora_decode</key>
     <param>
       <key>alias</key>
@@ -1407,7 +1431,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 712)</value>
+      <value>(224, 712)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1462,7 +1486,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(496, 712)</value>
+      <value>(472, 712)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1564,7 +1588,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(344, 400)</value>
+      <value>(408, 400)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1638,7 +1662,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(912, 336)</value>
+      <value>(832, 336)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1716,7 +1740,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(872, 384)</value>
+      <value>(816, 384)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1779,7 +1803,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(696, 712)</value>
+      <value>(672, 712)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1858,7 +1882,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1200, 488)</value>
+      <value>(1160, 480)</value>
     </param>
     <param>
       <key>gui_hint</key>
@@ -2713,7 +2737,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
@@ -4048,11 +4072,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1192, 704)</value>
+      <value>(1192, 832)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -4207,6 +4231,124 @@
       <value></value>
     </param>
   </block>
+  <block>
+    <key>zeromq_pub_sink</key>
+    <param>
+      <key>address</key>
+      <value>ip_pub</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1152, 392)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>hwm</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>zeromq_pub_sink_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>pass_tags</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>timeout</key>
+      <value>100</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
+  <block>
+    <key>zeromq_sub_source</key>
+    <param>
+      <key>address</key>
+      <value>ip_sub</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1208, 720)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+    <param>
+      <key>hwm</key>
+      <value>-1</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>zeromq_sub_source_0</value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>complex</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>pass_tags</key>
+      <value>False</value>
+    </param>
+    <param>
+      <key>timeout</key>
+      <value>100</value>
+    </param>
+    <param>
+      <key>vlen</key>
+      <value>1</value>
+    </param>
+  </block>
   <connection>
     <source_block_id>blocks_rotator_cc_0</source_block_id>
     <sink_block_id>pfb_arb_resampler_xxx_0</sink_block_id>
@@ -4236,12 +4378,6 @@
     <sink_block_id>blocks_tuntap_pdu_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>pdus</sink_key>
-  </connection>
-  <connection>
-    <source_block_id>fec_async_encoder_0</source_block_id>
-    <sink_block_id>blocks_message_debug_2</sink_block_id>
-    <source_key>out</source_key>
-    <sink_key>print_pdu</sink_key>
   </connection>
   <connection>
     <source_block_id>fec_async_encoder_0</source_block_id>
@@ -4286,6 +4422,12 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>pfb_arb_resampler_xxx_0</source_block_id>
+    <sink_block_id>zeromq_pub_sink_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>pfb_arb_resampler_xxx_0_0</source_block_id>
     <sink_block_id>lora_demod_0</sink_block_id>
     <source_key>0</source_key>
@@ -4293,6 +4435,12 @@
   </connection>
   <connection>
     <source_block_id>uhd_usrp_source_0</source_block_id>
+    <sink_block_id>blocks_rotator_cc_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>zeromq_sub_source_0</source_block_id>
     <sink_block_id>blocks_rotator_cc_0_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>

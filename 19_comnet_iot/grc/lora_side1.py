@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lora Side1
-# Generated: Wed Feb 27 18:32:44 2019
+# Generated: Wed Feb 27 19:42:53 2019
 ##################################################
 
 if __name__ == '__main__':
@@ -22,7 +22,7 @@ from gnuradio import eng_notation
 from gnuradio import fec
 from gnuradio import gr
 from gnuradio import qtgui
-from gnuradio import uhd
+from gnuradio import zeromq
 from gnuradio.eng_option import eng_option
 from gnuradio.filter import firdes
 from gnuradio.filter import pfb
@@ -32,13 +32,12 @@ import lora
 import math
 import sip
 import sys
-import time
 from gnuradio import qtgui
 
 
 class lora_side1(gr.top_block, Qt.QWidget):
 
-    def __init__(self, MTU=10000, bw=100e3, frequency_rx=2.4505e9 + 3e6, frequency_tx=2.4505e9, offset=0):
+    def __init__(self, MTU=10000, bw=100e3, frequency_rx=2.4505e9 + 1e6, frequency_tx=2.4505e9, ip_pub='tcp://192.168.5.134:11111', ip_sub='tcp://192.168.5.134:11111', offset=0):
         gr.top_block.__init__(self, "Lora Side1")
         Qt.QWidget.__init__(self)
         self.setWindowTitle("Lora Side1")
@@ -69,6 +68,8 @@ class lora_side1(gr.top_block, Qt.QWidget):
         self.bw = bw
         self.frequency_rx = frequency_rx
         self.frequency_tx = frequency_tx
+        self.ip_pub = ip_pub
+        self.ip_sub = ip_sub
         self.offset = offset
 
         ##################################################
@@ -110,34 +111,8 @@ class lora_side1(gr.top_block, Qt.QWidget):
         ##################################################
         # Blocks
         ##################################################
-        self._gain_tx_range = Range(0, 1, 0.01, 0.1, 200)
-        self._gain_tx_win = RangeWidget(self._gain_tx_range, self.set_gain_tx, 'gain_tx', "counter_slider", float)
-        self.top_layout.addWidget(self._gain_tx_win)
-        self._gain_rx_range = Range(0, 1, 0.01, 1.0, 200)
-        self._gain_rx_win = RangeWidget(self._gain_rx_range, self.set_gain_rx, 'gain_rx', "counter_slider", float)
-        self.top_layout.addWidget(self._gain_rx_win)
-        self.uhd_usrp_source_0 = uhd.usrp_source(
-        	",".join(('', '')),
-        	uhd.stream_args(
-        		cpu_format="fc32",
-        		channels=range(1),
-        	),
-        )
-        self.uhd_usrp_source_0.set_samp_rate(samp_rate)
-        self.uhd_usrp_source_0.set_center_freq(frequency_rx, 0)
-        self.uhd_usrp_source_0.set_normalized_gain(gain_rx, 0)
-        self.uhd_usrp_source_0.set_antenna("RX2", 0)
-        self.uhd_usrp_sink_0 = uhd.usrp_sink(
-        	",".join(("", "")),
-        	uhd.stream_args(
-        		cpu_format="fc32",
-        		channels=range(1),
-        	),
-        )
-        self.uhd_usrp_sink_0.set_samp_rate(samp_rate)
-        self.uhd_usrp_sink_0.set_center_freq(frequency_tx, 0)
-        self.uhd_usrp_sink_0.set_normalized_gain(gain_tx, 0)
-        self.uhd_usrp_sink_0.set_antenna("TX/RX", 0)
+        self.zeromq_sub_source_0 = zeromq.sub_source(gr.sizeof_gr_complex, 1, ip_sub, 100, False, -1)
+        self.zeromq_pub_sink_0 = zeromq.pub_sink(gr.sizeof_gr_complex, 1, ip_pub, 100, False, -1)
         self.qtgui_waterfall_sink_x_0 = qtgui.waterfall_sink_c(
         	1024, #size
         	firdes.WIN_BLACKMAN_hARRIS, #wintype
@@ -190,33 +165,32 @@ class lora_side1(gr.top_block, Qt.QWidget):
         self.lora_encode_0 = lora.encode(spreading_factor, code_rate, ldr, header)
         self.lora_demod_0 = lora.demod(spreading_factor, ldr, 25.0, 2)
         self.lora_decode_0 = lora.decode(spreading_factor, code_rate, ldr, header)
-        self.fec_async_encoder_0 = fec.async_encoder(enc_rep, False, True, True, MTU)
-        self.fec_async_decoder_0 = fec.async_decoder(dec_rep, True, True, MTU)
+        self._gain_tx_range = Range(0, 1, 0.01, 0.1, 200)
+        self._gain_tx_win = RangeWidget(self._gain_tx_range, self.set_gain_tx, 'gain_tx', "counter_slider", float)
+        self.top_layout.addWidget(self._gain_tx_win)
+        self._gain_rx_range = Range(0, 1, 0.01, 1.0, 200)
+        self._gain_rx_win = RangeWidget(self._gain_rx_range, self.set_gain_rx, 'gain_rx', "counter_slider", float)
+        self.top_layout.addWidget(self._gain_rx_win)
         self.blocks_tuntap_pdu_0 = blocks.tuntap_pdu('tap0', MTU, False)
         self.blocks_rotator_cc_0_0 = blocks.rotator_cc((2 * math.pi * offset) / samp_rate)
         self.blocks_rotator_cc_0 = blocks.rotator_cc((2 * math.pi * offset) / samp_rate)
-        self.blocks_message_debug_2 = blocks.message_debug()
-        self.blocks_message_debug_1 = blocks.message_debug()
         self.blocks_message_debug_0 = blocks.message_debug()
 
         ##################################################
         # Connections
         ##################################################
-        self.msg_connect((self.blocks_tuntap_pdu_0, 'pdus'), (self.fec_async_encoder_0, 'in'))
-        self.msg_connect((self.fec_async_decoder_0, 'out'), (self.blocks_message_debug_0, 'print_pdu'))
-        self.msg_connect((self.fec_async_decoder_0, 'out'), (self.blocks_tuntap_pdu_0, 'pdus'))
-        self.msg_connect((self.fec_async_encoder_0, 'out'), (self.blocks_message_debug_2, 'print_pdu'))
-        self.msg_connect((self.fec_async_encoder_0, 'out'), (self.lora_encode_0, 'in'))
-        self.msg_connect((self.lora_decode_0, 'out'), (self.fec_async_decoder_0, 'in'))
+        self.msg_connect((self.blocks_tuntap_pdu_0, 'pdus'), (self.lora_encode_0, 'in'))
+        self.msg_connect((self.lora_decode_0, 'out'), (self.blocks_message_debug_0, 'print_pdu'))
+        self.msg_connect((self.lora_decode_0, 'out'), (self.blocks_tuntap_pdu_0, 'pdus'))
         self.msg_connect((self.lora_demod_0, 'out'), (self.lora_decode_0, 'in'))
         self.msg_connect((self.lora_encode_0, 'out'), (self.lora_mod_0, 'in'))
         self.connect((self.blocks_rotator_cc_0, 0), (self.pfb_arb_resampler_xxx_0, 0))
         self.connect((self.blocks_rotator_cc_0_0, 0), (self.pfb_arb_resampler_xxx_0_0, 0))
         self.connect((self.lora_mod_0, 0), (self.blocks_rotator_cc_0, 0))
         self.connect((self.pfb_arb_resampler_xxx_0, 0), (self.qtgui_waterfall_sink_x_0, 0))
-        self.connect((self.pfb_arb_resampler_xxx_0, 0), (self.uhd_usrp_sink_0, 0))
+        self.connect((self.pfb_arb_resampler_xxx_0, 0), (self.zeromq_pub_sink_0, 0))
         self.connect((self.pfb_arb_resampler_xxx_0_0, 0), (self.lora_demod_0, 0))
-        self.connect((self.uhd_usrp_source_0, 0), (self.blocks_rotator_cc_0_0, 0))
+        self.connect((self.zeromq_sub_source_0, 0), (self.blocks_rotator_cc_0_0, 0))
 
     def closeEvent(self, event):
         self.settings = Qt.QSettings("GNU Radio", "lora_side1")
@@ -242,14 +216,24 @@ class lora_side1(gr.top_block, Qt.QWidget):
 
     def set_frequency_rx(self, frequency_rx):
         self.frequency_rx = frequency_rx
-        self.uhd_usrp_source_0.set_center_freq(self.frequency_rx, 0)
 
     def get_frequency_tx(self):
         return self.frequency_tx
 
     def set_frequency_tx(self, frequency_tx):
         self.frequency_tx = frequency_tx
-        self.uhd_usrp_sink_0.set_center_freq(self.frequency_tx, 0)
+
+    def get_ip_pub(self):
+        return self.ip_pub
+
+    def set_ip_pub(self, ip_pub):
+        self.ip_pub = ip_pub
+
+    def get_ip_sub(self):
+        return self.ip_sub
+
+    def set_ip_sub(self, ip_sub):
+        self.ip_sub = ip_sub
 
     def get_offset(self):
         return self.offset
@@ -276,8 +260,6 @@ class lora_side1(gr.top_block, Qt.QWidget):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
-        self.uhd_usrp_source_0.set_samp_rate(self.samp_rate)
-        self.uhd_usrp_sink_0.set_samp_rate(self.samp_rate)
         self.qtgui_waterfall_sink_x_0.set_frequency_range(0, self.samp_rate)
         self.pfb_arb_resampler_xxx_0_0.set_rate(self.bw/self.samp_rate)
         self.pfb_arb_resampler_xxx_0.set_rate(self.samp_rate/self.bw)
@@ -301,16 +283,12 @@ class lora_side1(gr.top_block, Qt.QWidget):
 
     def set_gain_tx(self, gain_tx):
         self.gain_tx = gain_tx
-        self.uhd_usrp_sink_0.set_normalized_gain(self.gain_tx, 0)
-
 
     def get_gain_rx(self):
         return self.gain_rx
 
     def set_gain_rx(self, gain_rx):
         self.gain_rx = gain_rx
-        self.uhd_usrp_source_0.set_normalized_gain(self.gain_rx, 0)
-
 
     def get_enc_rep(self):
         return self.enc_rep
@@ -361,11 +339,17 @@ def argument_parser():
         "", "--MTU", dest="MTU", type="intx", default=10000,
         help="Set MTU [default=%default]")
     parser.add_option(
-        "", "--frequency-rx", dest="frequency_rx", type="eng_float", default=eng_notation.num_to_str(2.4505e9 + 3e6),
+        "", "--frequency-rx", dest="frequency_rx", type="eng_float", default=eng_notation.num_to_str(2.4505e9 + 1e6),
         help="Set frequency_rx [default=%default]")
     parser.add_option(
         "", "--frequency-tx", dest="frequency_tx", type="eng_float", default=eng_notation.num_to_str(2.4505e9),
         help="Set frequency_tx [default=%default]")
+    parser.add_option(
+        "", "--ip-pub", dest="ip_pub", type="string", default='tcp://192.168.5.134:11111',
+        help="Set ip_pub [default=%default]")
+    parser.add_option(
+        "", "--ip-sub", dest="ip_sub", type="string", default='tcp://192.168.5.134:11111',
+        help="Set ip_sub [default=%default]")
     return parser
 
 
@@ -379,7 +363,7 @@ def main(top_block_cls=lora_side1, options=None):
         Qt.QApplication.setGraphicsSystem(style)
     qapp = Qt.QApplication(sys.argv)
 
-    tb = top_block_cls(MTU=options.MTU, frequency_rx=options.frequency_rx, frequency_tx=options.frequency_tx)
+    tb = top_block_cls(MTU=options.MTU, frequency_rx=options.frequency_rx, frequency_tx=options.frequency_tx, ip_pub=options.ip_pub, ip_sub=options.ip_sub)
     tb.start()
     tb.show()
 
