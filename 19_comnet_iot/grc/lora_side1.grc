@@ -410,7 +410,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>0.8</value>
+      <value>1.0</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -473,7 +473,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>0.8</value>
+      <value>0.1</value>
     </param>
     <param>
       <key>_enabled</key>
@@ -829,7 +829,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>1000</value>
+      <value>10000</value>
     </param>
   </block>
   <block>
@@ -880,6 +880,37 @@
     </param>
   </block>
   <block>
+    <key>blocks_message_debug</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(344, 472)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>blocks_message_debug_0</value>
+    </param>
+  </block>
+  <block>
     <key>blocks_pdu_to_tagged_stream</key>
     <param>
       <key>alias</key>
@@ -899,7 +930,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1144, 584)</value>
+      <value>(1176, 584)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -946,7 +977,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(752, 208)</value>
+      <value>(504, 136)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1005,7 +1036,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(992, 200)</value>
+      <value>(736, 128)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1138,7 +1169,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(984, 288)</value>
+      <value>(1016, 288)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1185,7 +1216,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(600, 584)</value>
+      <value>(544, 584)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1197,11 +1228,11 @@
     </param>
     <param>
       <key>type</key>
-      <value>float</value>
+      <value>byte</value>
     </param>
     <param>
       <key>tag</key>
-      <value>pkt_len</value>
+      <value>"len"</value>
     </param>
     <param>
       <key>maxoutbuf</key>
@@ -1236,7 +1267,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(464, 80)</value>
+      <value>(272, 120)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1369,11 +1400,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(256, 576)</value>
+      <value>(208, 576)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -1420,7 +1451,7 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>2</value>
     </param>
     <param>
       <key>encoder</key>
@@ -1461,6 +1492,116 @@
     <param>
       <key>rev_unpack</key>
       <value>True</value>
+    </param>
+  </block>
+  <block>
+    <key>fec_extended_decoder</key>
+    <param>
+      <key>ann</key>
+      <value>None</value>
+    </param>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>decoder_list</key>
+      <value>dec_cc</value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(640, 456)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fec_extended_decoder_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>puncpat</key>
+      <value>'11'</value>
+    </param>
+    <param>
+      <key>threadtype</key>
+      <value>none</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>fec_extended_decoder</value>
+    </param>
+  </block>
+  <block>
+    <key>fec_extended_encoder</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>encoder_list</key>
+      <value>enc_ccsds</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(984, 120)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>fec_extended_encoder_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>puncpat</key>
+      <value>'11'</value>
+    </param>
+    <param>
+      <key>threadtype</key>
+      <value>capillary</value>
     </param>
   </block>
   <block>
@@ -4230,7 +4371,7 @@
   </block>
   <connection>
     <source_block_id>blocks_char_to_float_0_1</source_block_id>
-    <sink_block_id>blocks_tagged_stream_to_pdu_1</sink_block_id>
+    <sink_block_id>fec_extended_decoder_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -4248,7 +4389,7 @@
   </connection>
   <connection>
     <source_block_id>blocks_repack_bits_bb_0_0_0</source_block_id>
-    <sink_block_id>blocks_tagged_stream_to_pdu_0_0</sink_block_id>
+    <sink_block_id>fec_extended_encoder_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>
@@ -4290,6 +4431,12 @@
   </connection>
   <connection>
     <source_block_id>fec_async_decoder_0</source_block_id>
+    <sink_block_id>blocks_message_debug_0</sink_block_id>
+    <source_key>out</source_key>
+    <sink_key>print_pdu</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fec_async_decoder_0</source_block_id>
     <sink_block_id>blocks_tuntap_pdu_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>pdus</sink_key>
@@ -4299,6 +4446,18 @@
     <sink_block_id>lora_encode_0</sink_block_id>
     <source_key>out</source_key>
     <sink_key>in</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fec_extended_decoder_0</source_block_id>
+    <sink_block_id>blocks_tagged_stream_to_pdu_1</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
+    <source_block_id>fec_extended_encoder_0</source_block_id>
+    <sink_block_id>blocks_tagged_stream_to_pdu_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
   </connection>
   <connection>
     <source_block_id>lora_decode_0</source_block_id>
