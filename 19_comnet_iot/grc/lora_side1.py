@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Lora Side1
-# Generated: Thu Feb 28 12:27:38 2019
+# Generated: Thu Feb 28 12:33:23 2019
 ##################################################
 
 from gnuradio import blocks
@@ -21,7 +21,7 @@ import math
 
 class lora_side1(gr.top_block):
 
-    def __init__(self, MTU=10000, bw=100e3, frequency_rx=2.4505e9 + 1e6, frequency_tx=2.4505e9, ip_pub='tcp://192.168.5.134:7001', ip_sub='tcp://192.168.5.109:7000', offset=0):
+    def __init__(self, MTU=10000, bw=100e3, frequency_rx=2.4505e9 + 1e6, frequency_tx=2.4505e9, ip_pub='tcp://192.168.5.134:7001', ip_sub='tcp://192.168.5.109:7000', offset=-250e3):
         gr.top_block.__init__(self, "Lora Side1")
 
         ##################################################
@@ -74,6 +74,18 @@ class lora_side1(gr.top_block):
         ##################################################
         self.zeromq_push_sink_0 = zeromq.push_sink(gr.sizeof_gr_complex, 1, ip_pub, 100, False, -1)
         self.zeromq_pull_source_0 = zeromq.pull_source(gr.sizeof_gr_complex, 1, ip_sub, 100, False, -1)
+        self.pfb_arb_resampler_xxx_0_0 = pfb.arb_resampler_ccf(
+        	  bw/samp_rate,
+                  taps=None,
+        	  flt_size=32)
+        self.pfb_arb_resampler_xxx_0_0.declare_sample_delay(0)
+
+        self.pfb_arb_resampler_xxx_0 = pfb.arb_resampler_ccf(
+        	  samp_rate/bw,
+                  taps=None,
+        	  flt_size=32)
+        self.pfb_arb_resampler_xxx_0.declare_sample_delay(0)
+
         self.lora_mod_0 = lora.mod(spreading_factor, 0x12)
         self.lora_encode_0 = lora.encode(spreading_factor, code_rate, ldr, header)
         self.lora_demod_0 = lora.demod(spreading_factor, ldr, 25.0, 2)
@@ -89,8 +101,10 @@ class lora_side1(gr.top_block):
         self.msg_connect((self.lora_decode_0, 'out'), (self.blocks_tuntap_pdu_0, 'pdus'))
         self.msg_connect((self.lora_demod_0, 'out'), (self.lora_decode_0, 'in'))
         self.msg_connect((self.lora_encode_0, 'out'), (self.lora_mod_0, 'in'))
-        self.connect((self.lora_mod_0, 0), (self.zeromq_push_sink_0, 0))
-        self.connect((self.zeromq_pull_source_0, 0), (self.lora_demod_0, 0))
+        self.connect((self.lora_mod_0, 0), (self.pfb_arb_resampler_xxx_0, 0))
+        self.connect((self.pfb_arb_resampler_xxx_0, 0), (self.zeromq_push_sink_0, 0))
+        self.connect((self.pfb_arb_resampler_xxx_0_0, 0), (self.lora_demod_0, 0))
+        self.connect((self.zeromq_pull_source_0, 0), (self.pfb_arb_resampler_xxx_0_0, 0))
 
     def get_MTU(self):
         return self.MTU
@@ -103,6 +117,8 @@ class lora_side1(gr.top_block):
 
     def set_bw(self, bw):
         self.bw = bw
+        self.pfb_arb_resampler_xxx_0_0.set_rate(self.bw/self.samp_rate)
+        self.pfb_arb_resampler_xxx_0.set_rate(self.samp_rate/self.bw)
 
     def get_frequency_rx(self):
         return self.frequency_rx
@@ -151,6 +167,8 @@ class lora_side1(gr.top_block):
 
     def set_samp_rate(self, samp_rate):
         self.samp_rate = samp_rate
+        self.pfb_arb_resampler_xxx_0_0.set_rate(self.bw/self.samp_rate)
+        self.pfb_arb_resampler_xxx_0.set_rate(self.samp_rate/self.bw)
 
     def get_ldr(self):
         return self.ldr
