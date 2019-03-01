@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Ansible Hydra Server Side1
-# Generated: Fri Mar  1 13:45:19 2019
+# Generated: Fri Mar  1 16:34:15 2019
 ##################################################
 
 from gnuradio import eng_notation
@@ -31,15 +31,14 @@ class ansible_hydra_server_side1(gr.top_block):
         ##################################################
         # Blocks
         ##################################################
-        self.hydra_gr_server_network_0 = Template error: hydra.hydra_gr_server_network($ip)
-        if $(tx_center_frequency) > 0 and $(tx_samp_rate) > 0 and $(tx_fft_size) > 0:
-           self.$(id).set_tx_config($tx_center_frequency, $tx_samp_rate, $tx_fft_size, $server_ip, $remote_ip)
-        if $(rx_center_frequency) > 0 and $(rx_samp_rate) > 0 and $(rx_fft_size) > 0:
-           self.$(id).set_rx_config($rx_center_frequency, $rx_samp_rate, $rx_fft_size, $server_ip, $remote_ip)
-        self.$(id)_thread = threading.Thread(target=self.$(id).start_server)
-        self.$(id)_thread.daemon = True
-        self.$(id)_thread.start()
-            cannot find 'ip'
+        self.hydra_gr_server_network_0 = hydra.hydra_gr_server_network(ansibleHostIP)
+        if 2e6 > 0 and 4e6 > 0 and 2048 > 0:
+           self.hydra_gr_server_network_0.set_tx_config(2e6, 4e6, 2048, ansibleHostIP, ansibleRemoteIP)
+        if 2e6 > 0 and 4e6 > 0 and 2048 > 0:
+           self.hydra_gr_server_network_0.set_rx_config(2e6, 4e6, 2048, ansibleHostIP, ansibleRemoteIP)
+        self.hydra_gr_server_network_0_thread = threading.Thread(target=self.hydra_gr_server_network_0.start_server)
+        self.hydra_gr_server_network_0_thread.daemon = True
+        self.hydra_gr_server_network_0_thread.start()
 
     def get_ansibleFreqRx(self):
         return self.ansibleFreqRx

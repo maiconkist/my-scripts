@@ -276,12 +276,16 @@
       <value>0</value>
     </param>
     <param>
+      <key>host_addr</key>
+      <value>ansibleHostIP</value>
+    </param>
+    <param>
       <key>id</key>
       <value>hydra_gr_server_network_0</value>
     </param>
     <param>
       <key>rx_center_frequency</key>
-      <value>0</value>
+      <value>2e6</value>
     </param>
     <param>
       <key>rx_fft_size</key>
@@ -292,16 +296,12 @@
       <value>4e6</value>
     </param>
     <param>
-      <key>remote_ip</key>
+      <key>remote_addr</key>
       <value>ansibleRemoteIP</value>
     </param>
     <param>
-      <key>server_ip</key>
-      <value>ansibleHostIP</value>
-    </param>
-    <param>
       <key>tx_center_frequency</key>
-      <value>0</value>
+      <value>2e6</value>
     </param>
     <param>
       <key>tx_fft_size</key>

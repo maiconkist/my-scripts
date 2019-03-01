@@ -338,7 +338,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1248, 112)</value>
+      <value>(1256, 88)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -362,7 +362,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2.4555e9</value>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -405,7 +405,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2.4505e9</value>
+      <value>0</value>
     </param>
   </block>
   <block>
@@ -424,7 +424,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1136, 112)</value>
+      <value>(1088, 100)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -432,11 +432,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>ansibleID</value>
+      <value>ansibleHostIP</value>
     </param>
     <param>
       <key>label</key>
-      <value>ansibleID</value>
+      <value></value>
     </param>
     <param>
       <key>short_id</key>
@@ -448,7 +448,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>1</value>
+      <value>192.168.5.134</value>
     </param>
   </block>
   <block>
@@ -467,7 +467,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1136, 0)</value>
+      <value>(1152, 16)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -475,11 +475,11 @@
     </param>
     <param>
       <key>id</key>
-      <value>ansibleIP</value>
+      <value>ansibleID</value>
     </param>
     <param>
       <key>label</key>
-      <value>ansibleIP</value>
+      <value></value>
     </param>
     <param>
       <key>short_id</key>
@@ -491,11 +491,11 @@
     </param>
     <param>
       <key>value</key>
-      <value>notValid</value>
+      <value>0</value>
     </param>
   </block>
   <block>
-    <key>blocks_message_debug</key>
+    <key>parameter</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -505,16 +505,12 @@
       <value></value>
     </param>
     <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
       <key>_enabled</key>
-      <value>1</value>
+      <value>True</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(936, 776)</value>
+      <value>(1088, 180)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -522,7 +518,23 @@
     </param>
     <param>
       <key>id</key>
-      <value>blocks_message_debug_0_0</value>
+      <value>ansibleServerIP</value>
+    </param>
+    <param>
+      <key>label</key>
+      <value></value>
+    </param>
+    <param>
+      <key>short_id</key>
+      <value></value>
+    </param>
+    <param>
+      <key>type</key>
+      <value>string</value>
+    </param>
+    <param>
+      <key>value</key>
+      <value>192.168.5.134</value>
     </param>
   </block>
   <block>
@@ -729,11 +741,11 @@
     </param>
     <param>
       <key>_enabled</key>
-      <value>True</value>
+      <value>0</value>
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1208, 528)</value>
+      <value>(1240, 448)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -769,7 +781,7 @@
     </param>
   </block>
   <block>
-    <key>hydra_gr_sink</key>
+    <key>hydra_gr_network_sink</key>
     <param>
       <key>alias</key>
       <value></value>
@@ -777,10 +789,6 @@
     <param>
       <key>center_frequency</key>
       <value>ansibleFreqTx + samp_rate/2 + (samp_rate * int(ansibleID))</value>
-    </param>
-    <param>
-      <key>host</key>
-      <value>ansibleIP</value>
     </param>
     <param>
       <key>comment</key>
@@ -796,19 +804,23 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1200, 288)</value>
+      <value>(1216, 280)</value>
     </param>
     <param>
       <key>_rotation</key>
       <value>0</value>
     </param>
     <param>
+      <key>host_addr</key>
+      <value>ansibleHostIP</value>
+    </param>
+    <param>
       <key>id</key>
-      <value>hydra_gr_sink_0</value>
+      <value>hydra_gr_network_sink_0</value>
     </param>
     <param>
       <key>payload</key>
-      <value>1000</value>
+      <value>5000</value>
     </param>
     <param>
       <key>port</key>
@@ -817,6 +829,77 @@
     <param>
       <key>samp_rate</key>
       <value>samp_rate</value>
+    </param>
+    <param>
+      <key>server_addr</key>
+      <value>ansibleServerIP</value>
+    </param>
+    <param>
+      <key>u_id</key>
+      <value>int(ansibleID)</value>
+    </param>
+  </block>
+  <block>
+    <key>hydra_gr_network_source</key>
+    <param>
+      <key>alias</key>
+      <value></value>
+    </param>
+    <param>
+      <key>center_frequency</key>
+      <value>ansibleFreqRx + samp_rate/2 + (samp_rate * int(ansibleID))</value>
+    </param>
+    <param>
+      <key>host_addr</key>
+      <value>ansibleHostIP</value>
+    </param>
+    <param>
+      <key>comment</key>
+      <value></value>
+    </param>
+    <param>
+      <key>affinity</key>
+      <value></value>
+    </param>
+    <param>
+      <key>_enabled</key>
+      <value>True</value>
+    </param>
+    <param>
+      <key>_coordinate</key>
+      <value>(1200, 576)</value>
+    </param>
+    <param>
+      <key>_rotation</key>
+      <value>180</value>
+    </param>
+    <param>
+      <key>id</key>
+      <value>hydra_gr_network_source_0</value>
+    </param>
+    <param>
+      <key>maxoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>minoutbuf</key>
+      <value>0</value>
+    </param>
+    <param>
+      <key>payload</key>
+      <value>10000</value>
+    </param>
+    <param>
+      <key>port</key>
+      <value>5000</value>
+    </param>
+    <param>
+      <key>samp_rate</key>
+      <value>samp_rate</value>
+    </param>
+    <param>
+      <key>server_addr</key>
+      <value>ansibleServerIP</value>
     </param>
     <param>
       <key>u_id</key>
@@ -1322,6 +1405,12 @@
     <sink_key>0</sink_key>
   </connection>
   <connection>
+    <source_block_id>hydra_gr_network_source_0</source_block_id>
+    <sink_block_id>blocks_rotator_cc_0_0</sink_block_id>
+    <source_key>0</source_key>
+    <sink_key>0</sink_key>
+  </connection>
+  <connection>
     <source_block_id>lora_decode_0</source_block_id>
     <sink_block_id>blocks_tuntap_pdu_0</sink_block_id>
     <source_key>out</source_key>
@@ -1347,7 +1436,7 @@
   </connection>
   <connection>
     <source_block_id>pfb_arb_resampler_xxx_0</source_block_id>
-    <sink_block_id>hydra_gr_sink_0</sink_block_id>
+    <sink_block_id>hydra_gr_network_sink_0</sink_block_id>
     <source_key>0</source_key>
     <sink_key>0</sink_key>
   </connection>

@@ -3,7 +3,7 @@
 ##################################################
 # GNU Radio Python Flow Graph
 # Title: Ansible Hydra Server Side2
-# Generated: Fri Mar  1 13:50:34 2019
+# Generated: Fri Mar  1 16:34:49 2019
 ##################################################
 
 from gnuradio import eng_notation
@@ -17,7 +17,7 @@ import threading
 
 class ansible_hydra_server_side2(gr.top_block):
 
-    def __init__(self, ansibleFreqRx='2e6', ansibleFreqTx='2e6', ansibleHostIP='192.168.5.109:5000', ansibleRemoteIP='192.168.5.134:5000'):
+    def __init__(self, ansibleFreqRx='2e6', ansibleFreqTx='2e6', ansibleRemoteIP='192.168.5.134:5000', ansibleHostIP='192.168.5.109:5000'):
         gr.top_block.__init__(self, "Ansible Hydra Server Side2")
 
         ##################################################
@@ -25,21 +25,20 @@ class ansible_hydra_server_side2(gr.top_block):
         ##################################################
         self.ansibleFreqRx = ansibleFreqRx
         self.ansibleFreqTx = ansibleFreqTx
-        self.ansibleHostIP = ansibleHostIP
         self.ansibleRemoteIP = ansibleRemoteIP
+        self.ansibleHostIP = ansibleHostIP
 
         ##################################################
         # Blocks
         ##################################################
-        self.hydra_gr_server_network_0 = Template error: hydra.hydra_gr_server_network($ip)
-        if $(tx_center_frequency) > 0 and $(tx_samp_rate) > 0 and $(tx_fft_size) > 0:
-           self.$(id).set_tx_config($tx_center_frequency, $tx_samp_rate, $tx_fft_size, $server_ip, $remote_ip)
-        if $(rx_center_frequency) > 0 and $(rx_samp_rate) > 0 and $(rx_fft_size) > 0:
-           self.$(id).set_rx_config($rx_center_frequency, $rx_samp_rate, $rx_fft_size, $server_ip, $remote_ip)
-        self.$(id)_thread = threading.Thread(target=self.$(id).start_server)
-        self.$(id)_thread.daemon = True
-        self.$(id)_thread.start()
-            cannot find 'ip'
+        self.hydra_gr_server_network_0 = hydra.hydra_gr_server_network(ansibleHostIP)
+        if 2e6 > 0 and 4e6 > 0 and 2048 > 0:
+           self.hydra_gr_server_network_0.set_tx_config(2e6, 4e6, 2048, ansibleHostIP, ansibleRemoteIP)
+        if 2e6 > 0 and 4e6 > 0 and 2048 > 0:
+           self.hydra_gr_server_network_0.set_rx_config(2e6, 4e6, 2048, ansibleHostIP, ansibleRemoteIP)
+        self.hydra_gr_server_network_0_thread = threading.Thread(target=self.hydra_gr_server_network_0.start_server)
+        self.hydra_gr_server_network_0_thread.daemon = True
+        self.hydra_gr_server_network_0_thread.start()
 
     def get_ansibleFreqRx(self):
         return self.ansibleFreqRx
@@ -53,17 +52,17 @@ class ansible_hydra_server_side2(gr.top_block):
     def set_ansibleFreqTx(self, ansibleFreqTx):
         self.ansibleFreqTx = ansibleFreqTx
 
-    def get_ansibleHostIP(self):
-        return self.ansibleHostIP
-
-    def set_ansibleHostIP(self, ansibleHostIP):
-        self.ansibleHostIP = ansibleHostIP
-
     def get_ansibleRemoteIP(self):
         return self.ansibleRemoteIP
 
     def set_ansibleRemoteIP(self, ansibleRemoteIP):
         self.ansibleRemoteIP = ansibleRemoteIP
+
+    def get_ansibleHostIP(self):
+        return self.ansibleHostIP
+
+    def set_ansibleHostIP(self, ansibleHostIP):
+        self.ansibleHostIP = ansibleHostIP
 
 
 def argument_parser():
@@ -75,11 +74,11 @@ def argument_parser():
         "", "--ansibleFreqTx", dest="ansibleFreqTx", type="string", default='2e6',
         help="Set ansibleFreqTx [default=%default]")
     parser.add_option(
-        "", "--ansibleHostIP", dest="ansibleHostIP", type="string", default='192.168.5.109:5000',
-        help="Set ansibleHostIP [default=%default]")
-    parser.add_option(
         "", "--ansibleRemoteIP", dest="ansibleRemoteIP", type="string", default='192.168.5.134:5000',
         help="Set ansibleRemoteIP [default=%default]")
+    parser.add_option(
+        "", "--ansibleHostIP", dest="ansibleHostIP", type="string", default='192.168.5.109:5000',
+        help="Set ansibleHostIP [default=%default]")
     return parser
 
 
@@ -87,7 +86,7 @@ def main(top_block_cls=ansible_hydra_server_side2, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 
-    tb = top_block_cls(ansibleFreqRx=options.ansibleFreqRx, ansibleFreqTx=options.ansibleFreqTx, ansibleHostIP=options.ansibleHostIP, ansibleRemoteIP=options.ansibleRemoteIP)
+    tb = top_block_cls(ansibleFreqRx=options.ansibleFreqRx, ansibleFreqTx=options.ansibleFreqTx, ansibleRemoteIP=options.ansibleRemoteIP, ansibleHostIP=options.ansibleHostIP)
     tb.start()
     tb.wait()
 
