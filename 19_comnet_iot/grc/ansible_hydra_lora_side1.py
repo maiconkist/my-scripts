@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 ##################################################
 # GNU Radio Python Flow Graph
-# Title: Ansible Hydra Gr Client 1Tx 1Rx
-# Generated: Thu Feb 28 14:21:43 2019
+# Title: Ansible Hydra Lora Side1
+# Generated: Thu Feb 28 17:10:29 2019
 ##################################################
 
 from gnuradio import blocks
@@ -19,10 +19,10 @@ import math
 import threading
 
 
-class ansible_hydra_gr_client_1tx_1rx(gr.top_block):
+class ansible_hydra_lora_side1(gr.top_block):
 
     def __init__(self, ansibleFreqRx=2.4555e9, ansibleFreqTx=2.4505e9, ansibleID='1', ansibleIP='notValid', bw=250e3, offset=-250e3):
-        gr.top_block.__init__(self, "Ansible Hydra Gr Client 1Tx 1Rx")
+        gr.top_block.__init__(self, "Ansible Hydra Lora Side1")
 
         ##################################################
         # Parameters
@@ -173,7 +173,7 @@ def argument_parser():
     return parser
 
 
-def main(top_block_cls=ansible_hydra_gr_client_1tx_1rx, options=None):
+def main(top_block_cls=ansible_hydra_lora_side1, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 

@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 ##################################################
 # GNU Radio Python Flow Graph
-# Title: Ansible Hydra Gr Client 1Tx 1Rx
-# Generated: Thu Feb 28 14:21:43 2019
+# Title: Ansible Hydra Lora Side2
+# Generated: Thu Feb 28 17:15:16 2019
 ##################################################
 
 from gnuradio import blocks
@@ -19,10 +19,10 @@ import math
 import threading
 
 
-class ansible_hydra_gr_client_1tx_1rx(gr.top_block):
+class ansible_hydra_lora_side2(gr.top_block):
 
-    def __init__(self, ansibleFreqRx=2.4555e9, ansibleFreqTx=2.4505e9, ansibleID='1', ansibleIP='notValid', bw=250e3, offset=-250e3):
-        gr.top_block.__init__(self, "Ansible Hydra Gr Client 1Tx 1Rx")
+    def __init__(self, ansibleFreqRx=2.4505e9, ansibleFreqTx=2.4555e9, ansibleID='1', ansibleIP='notValid', bw=250e3, offset=-250e3):
+        gr.top_block.__init__(self, "Ansible Hydra Lora Side2")
 
         ##################################################
         # Parameters
@@ -68,7 +68,6 @@ class ansible_hydra_gr_client_1tx_1rx(gr.top_block):
         self.hydra_gr__source_0.start_client(ansibleFreqRx + samp_rate/2 + (samp_rate * int(ansibleID)), samp_rate, 1000)
 
         self.blocks_tuntap_pdu_0 = blocks.tuntap_pdu('tap0', 1000, False)
-        self.blocks_message_debug_0_0 = blocks.message_debug()
 
         ##################################################
         # Connections
@@ -156,10 +155,10 @@ class ansible_hydra_gr_client_1tx_1rx(gr.top_block):
 def argument_parser():
     parser = OptionParser(usage="%prog: [options]", option_class=eng_option)
     parser.add_option(
-        "", "--ansibleFreqRx", dest="ansibleFreqRx", type="eng_float", default=eng_notation.num_to_str(2.4555e9),
+        "", "--ansibleFreqRx", dest="ansibleFreqRx", type="eng_float", default=eng_notation.num_to_str(2.4505e9),
         help="Set ansibleFreqRx [default=%default]")
     parser.add_option(
-        "", "--ansibleFreqTx", dest="ansibleFreqTx", type="eng_float", default=eng_notation.num_to_str(2.4505e9),
+        "", "--ansibleFreqTx", dest="ansibleFreqTx", type="eng_float", default=eng_notation.num_to_str(2.4555e9),
         help="Set ansibleFreqTx [default=%default]")
     parser.add_option(
         "", "--ansibleID", dest="ansibleID", type="string", default='1',
@@ -173,7 +172,7 @@ def argument_parser():
     return parser
 
 
-def main(top_block_cls=ansible_hydra_gr_client_1tx_1rx, options=None):
+def main(top_block_cls=ansible_hydra_lora_side2, options=None):
     if options is None:
         options, _ = argument_parser().parse_args()
 

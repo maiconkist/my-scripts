@@ -46,7 +46,7 @@
     </param>
     <param>
       <key>id</key>
-      <value>ansible_hydra_gr_client_1tx_1rx</value>
+      <value>ansible_hydra_lora_side2</value>
     </param>
     <param>
       <key>max_nouts</key>
@@ -338,7 +338,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1248, 104)</value>
+      <value>(1256, 8)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -362,7 +362,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2.4555e9</value>
+      <value>2.4505e9</value>
     </param>
   </block>
   <block>
@@ -381,7 +381,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1256, 8)</value>
+      <value>(1248, 112)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -405,7 +405,7 @@
     </param>
     <param>
       <key>value</key>
-      <value>2.4505e9</value>
+      <value>2.4555e9</value>
     </param>
   </block>
   <block>
@@ -492,37 +492,6 @@
     <param>
       <key>value</key>
       <value>notValid</value>
-    </param>
-  </block>
-  <block>
-    <key>blocks_message_debug</key>
-    <param>
-      <key>alias</key>
-      <value></value>
-    </param>
-    <param>
-      <key>comment</key>
-      <value></value>
-    </param>
-    <param>
-      <key>affinity</key>
-      <value></value>
-    </param>
-    <param>
-      <key>_enabled</key>
-      <value>1</value>
-    </param>
-    <param>
-      <key>_coordinate</key>
-      <value>(936, 776)</value>
-    </param>
-    <param>
-      <key>_rotation</key>
-      <value>0</value>
-    </param>
-    <param>
-      <key>id</key>
-      <value>blocks_message_debug_0_0</value>
     </param>
   </block>
   <block>
@@ -733,7 +702,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(1200, 528)</value>
+      <value>(1208, 528)</value>
     </param>
     <param>
       <key>_rotation</key>
@@ -937,7 +906,7 @@
     </param>
     <param>
       <key>_coordinate</key>
-      <value>(480, 544)</value>
+      <value>(424, 544)</value>
     </param>
     <param>
       <key>_rotation</key>
